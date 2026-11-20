@@ -177,6 +177,24 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
   const fmt = (x: number) => (isFinite(x) ? Math.round(x).toLocaleString('en-US') : '—');
   const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
   const STORE = 'wt-pricing-v1';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tweens = new WeakMap<HTMLElement, { from: number; raf: number }>();
+  /** count the number up/down to its new value */
+  function tween(el: HTMLElement, to: number) {
+    const prev = tweens.get(el);
+    const from = prev?.from ?? 0;
+    if (prev) cancelAnimationFrame(prev.raf);
+    if (reduce || !isFinite(from) || Math.abs(to - from) < 1) { el.textContent = fmt(to); tweens.set(el, { from: to, raf: 0 }); return; }
+    const t0 = performance.now(), dur = 650;
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      const v = from + (to - from) * e;
+      el.textContent = fmt(v);
+      tweens.set(el, { from: k < 1 ? v : to, raf: k < 1 ? requestAnimationFrame(step) : 0 });
+    };
+    tweens.set(el, { from, raf: requestAnimationFrame(step) });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
 
   function addLine(l?: { type?: string; a?: number | string; poles?: number | string; qty?: number | string }) {
     const tr = (tpl.content.cloneNode(true) as DocumentFragment).querySelector('tr') as HTMLTableRowElement;
@@ -228,9 +246,9 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
     save(inp);
     let r;
     try { r = est.calc(inp); } catch (e) { console.error(e); return; }
-    $('r-price').textContent = fmt(r.price);
-    $('r-low').textContent = fmt(r.low);
-    $('r-high').textContent = fmt(r.high);
+    tween($('r-price'), r.price);
+    tween($('r-low'), r.low);
+    tween($('r-high'), r.high);
     const pos = r.high > r.low ? ((r.price - r.low) / (r.high - r.low)) * 100 : 50;
     ($('r-mark') as HTMLElement).style.insetInlineStart = `${Math.min(100, Math.max(0, pos))}%`;
     $('r-total').textContent = `${fmt(r.qtyTotal)} EGP`;

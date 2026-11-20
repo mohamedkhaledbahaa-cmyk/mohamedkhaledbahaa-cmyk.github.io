@@ -15,7 +15,28 @@ const latest = articles.filter((a) => a !== featured).slice(0, 6);
 ---
 <Base lang={lang}>
   <section class="hero container">
-    <img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" />
+    <svg class="hero-circuit" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="hc-lines" fill="none" stroke-linecap="round">
+        <path d="M0 90 H260 L300 130 H470 L510 170 H540" />
+        <path d="M0 330 H200 L250 280 H430 L470 240 H540" />
+        <path d="M1200 90 H940 L900 130 H730 L690 170 H660" />
+        <path d="M1200 330 H1000 L950 280 H770 L730 240 H660" />
+        <path d="M0 210 H120 L150 180 H330" />
+        <path d="M1200 210 H1080 L1050 180 H870" />
+      </g>
+      <g class="hc-pulse" fill="none" stroke-linecap="round">
+        <path d="M0 90 H260 L300 130 H470 L510 170 H540" style="animation-delay:0s" />
+        <path d="M1200 330 H1000 L950 280 H770 L730 240 H660" style="animation-delay:1.2s" />
+        <path d="M0 330 H200 L250 280 H430 L470 240 H540" style="animation-delay:2.4s" />
+        <path d="M1200 90 H940 L900 130 H730 L690 170 H660" style="animation-delay:3.6s" />
+      </g>
+      <g class="hc-nodes">
+        <circle cx="300" cy="130" r="4" /><circle cx="470" cy="130" r="4" /><circle cx="250" cy="280" r="4" />
+        <circle cx="900" cy="130" r="4" /><circle cx="950" cy="280" r="4" /><circle cx="730" cy="240" r="4" />
+        <circle cx="150" cy="180" r="4" /><circle cx="1050" cy="180" r="4" />
+      </g>
+    </svg>
+    <div class="hero-logo-wrap"><img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" /></div>
     <h1 set:html={L.heroTitle} />
     <p>{L.description}</p>
     <p style="margin-top:22px"><a class="btn" href={url(lang, '/pricing/')}>⚡ {L.nav.pricing}</a></p>
