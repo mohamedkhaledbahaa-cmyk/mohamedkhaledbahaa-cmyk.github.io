@@ -223,6 +223,20 @@ export class Estimator {
     const Hh = C75 === 'PIL' ? (C3 === 'COFFREE' ? P.P28 : P.P26) : C75 === 'WALL' ? C72 : C63;
     const D = C75 === 'PIL' ? (C3 === 'COFFREE' ? P.P29 : C7 <= 400 ? 400 : 500) : C75 === 'WALL' ? C73 : C70;
     const columns = C75 === 'FLOOR' ? C59 + C61 + C65 + C68 : 1;
+    // column layout (Calc rows 86-105): feeders | incomer | ACB outgoings | 2nd incomer… | feeders | PFC
+    const layout: { code: string; label: string; w: number }[] = [];
+    if (C75 !== 'FLOOR') layout.push({ code: C75 === 'WALL' ? 'WALL BOX' : C3 === 'COFFREE' ? 'COFFREE' : 'PILLAR', label: C75, w: W });
+    else {
+      const push = (code: string, count: number, w: number) => { for (let i = 0; i < count; i++) layout.push({ code, label: code, w }); };
+      push('F', Math.floor(C65 / 2), C66);
+      push('I', Math.min(C59, 1), C58);
+      push('A', C61, C60 / Math.max(C61, 1));
+      push('I', Math.max(C59 - 1, 0), C58);
+      push('F', C65 - Math.floor(C65 / 2), C66);
+      push('P', C68, P.P21);
+      const seen: Record<string, number> = {};
+      layout.forEach((c) => { seen[c.code] = (seen[c.code] ?? 0) + 1; c.label = `${c.code}${seen[c.code]}`; });
+    }
     const dimsText = `${Math.round(W)} W × ${Math.round(Hh)} H × ${Math.round(D)} D mm`;
     const mountText = C75 === 'PIL' ? (C3 === 'COFFREE' ? 'Coffree – wall / pole mounted, outdoor' : 'Free-standing feeder pillar on plinth, outdoor')
       : C75 === 'WALL' ? 'Wall-mounted enclosure' : `Floor-standing, ${columns} column(s)`;
@@ -233,7 +247,7 @@ export class Estimator {
       confidence: (H3 < 0.7 ? 'high' : H3 < 1.6 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
       counts: { acb: C12, mccb: C13, mcb: C14, fuse: C15, mpcb: C16, vfd: C11, total: C12 + C13 + C14 + C15 + C16 },
       form: C23, formFactor: C24 / C25, breakersCost: C30, ratio: I12 / C30,
-      dims: { W, H: Hh, D, columns, text: dimsText, mount: mountText },
+      dims: { W, H: Hh, D, columns, text: dimsText, mount: mountText, mode: C75, layout },
       pfc: { on: C27, kvar: C28, type: C29 },
       techPrice, main, outs, C4, C7, C8, C9, C11, C21: inp.form,
     };
