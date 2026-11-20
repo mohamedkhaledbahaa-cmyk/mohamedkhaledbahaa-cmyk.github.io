@@ -454,3 +454,6 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 .cb-res .cb-warn { color: var(--accent); }
 .cb-miss { outline: 1px dashed #d9534f; }
 .cb-miss .cb-res-h b { color: #d9534f; }
+.cb-market { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: linear-gradient(135deg, var(--accent-soft), var(--surface) 60%); }
+.cb-reset { display: none; margin-inline-start: 6px; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; padding: 0; }
+.cb-edited .cb-reset { display: inline; }

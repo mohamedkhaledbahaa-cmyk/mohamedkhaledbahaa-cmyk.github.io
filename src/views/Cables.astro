@@ -8,6 +8,7 @@ const L = t(lang);
 const ar = lang === 'ar';
 const S = ar ? {
   title: 'تسعير الكابلات', lead: 'اختار نوع الكابل والمقاس والجهد والمورد، وخد السعر المقترح والعرض الفني فورًا.',
+  market: 'أسعار النهارده', cu: 'نحاس LME ($/طن)', al: 'ألومنيوم LME ($/طن)', usdRate: 'سعر الدولار (ج)', reset: 'رجّع لأسعار اليوم', marketNote: 'بتتحدّث تلقائيًا كل يوم عمل من بورصة لندن (LME) وسعر الدولار. تقدر تغيّرها بإيدك وكل الأسعار هتتحسب من جديد.',
   settings: 'إعدادات التسعير', project: 'اسم المشروع', brand: 'المورد المطلوب', allBrands: 'متوسط كل الموردين', wastage: 'نسبة الهالك %', margin: 'نسبة الربح %', vat: 'ضريبة القيمة المضافة %',
   cables: 'الكابلات المطلوبة', type: 'نوع الكابل (التوصيف)', size: 'المقاس (مم²)', voltage: 'الجهد', qty: 'الكمية (م)', override: 'سعر يدوي ج/م', add: '+ إضافة كابل', clear: 'مسح الكل', remove: 'حذف',
   hint: 'القوايم مترابطة: لما تختار النوع بيظهرلك المقاسات المتاحة له بس، وبعدها الجهود المتاحة. السعر = متوسط كل أسعار المورد المختار لنفس الكابل (محدّث على أسعار المعادن). لو المورد مالوش سعر للكابل ده، بيتاخد متوسط كل الموردين.',
@@ -18,6 +19,7 @@ const S = ar ? {
   disclaimer: 'الأسعار تقريبية (Budget) ومحدّثة على أسعار النحاس والألومنيوم والدولار المكتوبة فوق. راجع المورد قبل التعاقد.',
 } : {
   title: 'Cable Pricing', lead: 'Pick the cable type, size, voltage and supplier to get a suggested price and a technical offer instantly.',
+  market: "Today's prices", cu: 'LME copper ($/t)', al: 'LME aluminium ($/t)', usdRate: 'USD rate (EGP)', reset: "Reset to today's", marketNote: 'Updated automatically every working day from the LME and the USD/EGP rate. Edit them to see how prices change.',
   settings: 'Pricing settings', project: 'Project', brand: 'Required supplier', allBrands: 'Average of all suppliers', wastage: 'Wastage %', margin: 'Margin %', vat: 'VAT %',
   cables: 'Required cables', type: 'Cable type (description)', size: 'Size (mm²)', voltage: 'Voltage', qty: 'Qty (m)', override: 'Manual EGP/m', add: '+ Add cable', clear: 'Clear all', remove: 'Remove',
   hint: 'Lists are linked: choosing a type shows only its sizes, then the available voltages. Price = average of all prices of the selected supplier for the same cable (indexed to metal prices). If that supplier has no price for the cable, the all-supplier average is used.',
@@ -40,6 +42,15 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
 
     <div class="pr-layout no-print">
       <form class="pr-form" id="cb-form" autocomplete="off" onsubmit="return false">
+        <section class="pr-card cb-market">
+          <h2><span class="pr-num">⚡</span>{S.market}</h2>
+          <div class="pr-grid">
+            <label>{S.cu}<input name="mcu" type="number" step="any" min="1" /></label>
+            <label>{S.al}<input name="mal" type="number" step="any" min="1" /></label>
+            <label>{S.usdRate}<input name="musd" type="number" step="any" min="1" /></label>
+          </div>
+          <p class="pr-hint"><span id="cb-mdate"></span> {S.marketNote} <button type="button" class="cb-reset" id="cb-reset">↺ {S.reset}</button></p>
+        </section>
         <section class="pr-card">
           <h2><span class="pr-num">1</span>{S.settings}</h2>
           <div class="pr-grid">
@@ -88,7 +99,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
 </Base>
 
 <script>
-  import { CableEstimator, CABLE_NOTES, type CableData, type CableLine } from '../lib/cables';
+  import { CableEstimator, CABLE_NOTES, type CableData, type CableLine, type Market } from '../lib/cables';
 
   const root = document.getElementById('cables')!;
   const S = JSON.parse(root.dataset.s!);
@@ -155,8 +166,14 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     };
   }
 
+  let today: Market | null = null;
+  const mEl = (k: string) => form.elements.namedItem(k) as HTMLInputElement;
+  function setMarketInputs(m: Market) { mEl('mcu').value = String(m.cu); mEl('mal').value = String(m.al); mEl('musd').value = String(m.usd); }
+  function readMarket(): Market { return { cu: +mEl('mcu').value || today!.cu, al: +mEl('mal').value || today!.al, usd: +mEl('musd').value || today!.usd }; }
   function update() {
     if (!est) return;
+    est.setMarket(readMarket());
+    root.classList.toggle('cb-edited', !!today && JSON.stringify(readMarket()) !== JSON.stringify({ cu: today.cu, al: today.al, usd: today.usd }));
     const inp = read();
     try { localStorage.setItem(STORE, JSON.stringify(inp)); } catch {}
     const r = est.price(inp.lines, inp.settings);
@@ -189,10 +206,10 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     }).join('');
     $('cb-offer').innerHTML = `
       <header class="o-top"><img src="/logo-96.png" alt="" width="64" height="64" />
-        <div><h2>TECHNICAL OFFER – POWER CABLES</h2><p>Indexed to LME Cu ${fmt(d.meta.cu)} $/t • Al ${fmt(d.meta.al)} $/t • USD ${d.meta.usd} EGP</p></div></header>
+        <div><h2>TECHNICAL OFFER – POWER CABLES</h2><p>Indexed to LME Cu ${fmt(est!.market.cu)} $/t • Al ${fmt(est!.market.al)} $/t • USD ${est!.market.usd} EGP</p></div></header>
       <table class="o-info">
-        <tr><th>Project</th><td>${esc(inp.project)}</td><th>Date</th><td>${esc(d.meta.priceDate)}</td></tr>
-        <tr><th>Ref.</th><td>TO-CBL-${esc(d.meta.priceDate.replace(/-/g, ''))}</td><th>Submitted by</th><td>Watt's Tender</td></tr>
+        <tr><th>Project</th><td>${esc(inp.project)}</td><th>Date</th><td>${new Date().toISOString().slice(0, 10)}</td></tr>
+        <tr><th>Ref.</th><td>TO-CBL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}</td><th>Submitted by</th><td>Watt's Tender</td></tr>
         <tr><th>Manufacturer</th><td>${esc(brand)}</td><th>Total (excl. VAT)</th><td><b>${fmt(est!.price(inp.lines, inp.settings).sell)} EGP</b></td></tr>
       </table>
       <h3>CABLE SCHEDULE & TECHNICAL DATA</h3>
@@ -213,12 +230,20 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
   });
   $('cb-print').addEventListener('click', () => window.print());
 
-  fetch('/cables/data.json').then((r) => r.json()).then((d: CableData) => {
-    est = new CableEstimator(d);
+  $('cb-reset').addEventListener('click', () => { if (today) { setMarketInputs(today); update(); } });
+  Promise.all([
+    fetch('/cables/data.json').then((r) => r.json()),
+    fetch('/market.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => null),
+  ]).then(([d, mk]: [CableData, any]) => {
+    today = mk && mk.cu && mk.al && mk.usd ? { cu: +mk.cu, al: +mk.al, usd: +mk.usd } : { cu: d.meta.cu, al: d.meta.al, usd: d.meta.usd };
+    est = new CableEstimator(d, today);
+    setMarketInputs(today);
+    const md = mk?.cuDate || mk?.updated || d.meta.priceDate;
+    $('cb-mdate').textContent = ar ? `آخر تحديث: ${md} (الدولار ${mk?.usdDate ?? md}).` : `Last update: ${md} (USD ${mk?.usdDate ?? md}).`;
     ($('cb-brand') as HTMLSelectElement).insertAdjacentHTML('beforeend', est.brands.map((b) => `<option>${esc(b)}</option>`).join(''));
     $('cb-db').textContent = ar
-      ? `مبني على ${d.meta.prices} سعر من ${d.meta.brands} مورد — محدّث لتاريخ ${d.meta.priceDate} — نحاس ${fmt(d.meta.cu)} $/طن • ألومنيوم ${fmt(d.meta.al)} $/طن • الدولار ${d.meta.usd}`
-      : `Based on ${d.meta.prices} prices from ${d.meta.brands} suppliers — updated ${d.meta.priceDate} — Cu ${fmt(d.meta.cu)} $/t • Al ${fmt(d.meta.al)} $/t • USD ${d.meta.usd}`;
+      ? `مبني على ${est.priced.length} سعر من ${est.brands.length} مورد — كل الأسعار محدّثة على نحاس وألومنيوم LME والدولار النهارده`
+      : `Based on ${est.priced.length} prices from ${est.brands.length} suppliers — all re-indexed to today's LME copper, aluminium and USD rate`;
     let saved: any = null;
     try { saved = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch {}
     if (saved) {

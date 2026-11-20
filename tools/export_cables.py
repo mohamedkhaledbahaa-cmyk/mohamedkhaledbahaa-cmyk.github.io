@@ -5,8 +5,10 @@ Writes: public/cables/data.json
 
 Open the workbook in Excel (with today's LME / USD filled in) and save it first,
 so the cached "landed EGP/m today" prices are current.
-Only aggregated inputs are exported: cable key, supplier brand and today's price.
-No offer IDs, offer references, project names or quantities.
+Exported: cable key, supplier brand, quoted price, metal weights and the anonymous
+escalation terms of each offer (metal base prices, factors, dates) so the site can
+re-index prices to today's LME / USD. No offer IDs, references, supplier names
+(brand only), project names or quantities.
 """
 import json, sys, warnings, datetime, pathlib, re
 import openpyxl
@@ -19,13 +21,33 @@ def num(x):
     try: return float(x)
     except (TypeError, ValueError): return None
 
+st = wb['Settings']
+def ordinal(d): return d.toordinal() if isinstance(d, (datetime.datetime, datetime.date)) else None
+
+# offers -> anonymous index with only the escalation parameters (no ID, ref, supplier name or project)
+offers, oidx = [], {}
+off = wb['Offers']
+for r in range(5, off.max_row + 1):
+    g = lambda c: off[f'{c}{r}'].value
+    if not g('A'): continue
+    oidx[g('A')] = len(offers)
+    egp = g('F') == 'EGP'
+    offers.append({
+        'egp': egp, 'cuBase': num(g('I')), 'baseER': num(g('L')) or 0, 'cuX': num(g('M')) or 1, 'alBasis': g('J') or 'NONE',
+        'alBase': num(g('K')) or 0, 'alX': num(g('N')) or 1, 'freight': num(g('O')) or 0, 'other': num(g('P')) or 0,
+        'active': int(num(g('Y')) or 0), 'date': ordinal(g('D')), 'validUntil': ordinal(g('Z')),
+    })
+
 rows = []
 for r in range(5, db.max_row + 1):
     g = lambda c: db[f'{c}{r}'].value
-    typ, size, volt, brand, price, ak = g('E'), g('G'), g('I'), g('AL'), num(g('V')), num(g('AK'))
-    if not (typ and size and brand) or price is None or price <= 0 or ak is None or ak < 0: continue
+    typ, size, volt, brand, k = g('E'), g('G'), g('I'), g('AL'), num(g('K'))
+    o = oidx.get(g('B'))
+    if not (typ and size and brand) or k is None or k <= 0 or o is None: continue
     if re.search(r'\bref\b|\d{4,}', str(brand), re.I): brand = 'Other'   # never leak offer references
-    rows.append([str(typ).strip(), str(size).strip(), str(volt or '').strip(), str(brand).strip(), round(price, 4), int(ak == 1)])
+    # type, size, voltage, brand, quoted price (offer cur/m), Cu kg/km, Al kg/km, offer index, cached landed EGP/m
+    rows.append([str(typ).strip(), str(size).strip(), str(volt or '').strip(), str(brand).strip(), k,
+                 num(g('M')) or 0, num(g('N')) or 0, o, round(num(g('V')) or 0, 4)])
 
 types = {}
 for r in range(2, 201):
@@ -49,8 +71,11 @@ data = {
         'cu': num(boq['G6'].value), 'al': num(boq['G7'].value), 'usd': num(boq['G8'].value),
         'wastage': num(boq['C5'].value) or 0, 'margin': num(boq['C6'].value) or 0, 'vat': num(boq['C7'].value) or 0,
         'prices': len(rows), 'brands': len({r[3] for r in rows}),
+        'maxAge': num(st['D8'].value) or 365, 'nonMetalEsc': num(st['D17'].value) or 0,
+        'egyptalum': num(st['D5'].value), 'alPremium': num(st['D11'].value) / (num(st['D12'].value) * num(st['D13'].value)) - 1,
     },
-    'cols': ['type', 'size', 'voltage', 'brand', 'egpPerM', 'valid'],
+    'offers': offers,
+    'cols': ['type', 'size', 'voltage', 'brand', 'quoted', 'cuKgKm', 'alKgKm', 'offer', 'cachedEgpPerM'],
     'rows': rows, 'types': types, 'volts': volts, 'library': library,
 }
 out = pathlib.Path(__file__).resolve().parent.parent / 'public' / 'cables' / 'data.json'

@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '17 6 * * 1-5'   # weekdays ~08:17 Cairo: refresh LME & USD prices
   workflow_dispatch:
 
 permissions:
@@ -24,6 +26,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Fetch today's LME copper / aluminium and USD rate
+        run: python3 tools/fetch_market.py
+        continue-on-error: true
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
