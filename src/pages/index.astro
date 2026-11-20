@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { CATEGORIES, SITE, type CategoryKey } from '../config';
+import { getArticles, toArabicDigits } from '../lib/utils';
+
+const articles = await getArticles();
+const featured = articles.find((a) => a.data.featured) ?? articles[0];
+const latest = articles.filter((a) => a !== featured).slice(0, 6);
+const counts = Object.keys(CATEGORIES).map((k) => ({
+  key: k as CategoryKey,
+  count: articles.filter((a) => a.data.category === k).length,
+}));
+---
+<Base>
+  <section class="hero container">
+    <h1>مساحة للأفكار <span>العميقة</span><br />والكتابة الهادئة</h1>
+    <p>{SITE.description}</p>
+  </section>
+
+  <div class="container">
+    {featured && <section class="section"><ArticleCard article={featured} featured /></section>}
+
+    <section class="section">
+      <div class="chips">
+        {counts.map((c) => <a class="chip" href={`/category/${c.key}/`}>{CATEGORIES[c.key]}<small>({toArabicDigits(c.count)})</small></a>)}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>أحدث المقالات</h2><a href="/blog/">كل المقالات ←</a></div>
+      {latest.length ? <div class="grid">{latest.map((a) => <ArticleCard article={a} />)}</div> : <p class="empty">لا توجد مقالات أخرى بعد.</p>}
+    </section>
+
+    <Newsletter />
+  </div>
+</Base>

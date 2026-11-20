@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { CATEGORIES, type CategoryKey } from '../../config';
+import { getArticles, toArabicDigits } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return Object.keys(CATEGORIES).map((category) => ({
+    params: { category },
+    props: { articles: articles.filter((a) => a.data.category === category) },
+  }));
+}
+const { category } = Astro.params as { category: CategoryKey };
+const { articles } = Astro.props;
+const name = CATEGORIES[category];
+---
+<Base title={name} description={`مقالات في تصنيف ${name}`}>
+  <div class="container">
+    <header class="page-head"><h1>{name}</h1><p>{toArabicDigits(articles.length)} مقال في هذا التصنيف</p></header>
+    <div class="chips" style="margin-bottom:32px">
+      <a class="chip" href="/blog/">الكل</a>
+      {Object.entries(CATEGORIES).map(([k, v]) => <a class:list={['chip', { active: k === category }]} href={`/category/${k}/`}>{v}</a>)}
+    </div>
+    {articles.length ? <div class="grid">{articles.map((a) => <ArticleCard article={a} />)}</div> : <p class="empty">لا توجد مقالات في هذا التصنيف بعد.</p>}
+  </div>
+</Base>

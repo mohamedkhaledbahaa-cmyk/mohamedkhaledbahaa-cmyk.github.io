@@ -1,0 +1,31 @@
+---
+import { CATEGORIES } from '../config';
+import { formatDate, readingTime, readingLabel, type Article } from '../lib/utils';
+interface Props { article: Article; featured?: boolean }
+const { article, featured = false } = Astro.props;
+const { title, description, date, category, cover, coverAlt } = article.data;
+const url = `/posts/${article.id}/`;
+const mins = readingTime(article.body);
+---
+{featured ? (
+  <article class="featured">
+    {cover && <a href={url} class="card-cover"><img src={cover} alt={coverAlt ?? title} loading="eager" /></a>}
+    <div class="featured-body">
+      <a href={`/category/${category}/`} class="badge">{CATEGORIES[category]}</a>
+      <h2><a href={url}>{title}</a></h2>
+      <p>{description}</p>
+      <div class="meta"><time datetime={date.toISOString()}>{formatDate(date)}</time><span class="dot"></span><span>{readingLabel(mins)}</span></div>
+      <a href={url} class="btn" style="align-self:flex-start;margin-top:8px">اقرأ المقال</a>
+    </div>
+  </article>
+) : (
+  <article class="card">
+    {cover && <a href={url} class="card-cover" tabindex="-1" aria-hidden="true"><img src={cover} alt="" loading="lazy" /></a>}
+    <div class="card-body">
+      <a href={`/category/${category}/`} class="badge">{CATEGORIES[category]}</a>
+      <h3><a href={url}>{title}</a></h3>
+      <p>{description}</p>
+      <div class="meta"><time datetime={date.toISOString()}>{formatDate(date)}</time><span class="dot"></span><span>{readingLabel(mins)}</span></div>
+    </div>
+  </article>
+)}

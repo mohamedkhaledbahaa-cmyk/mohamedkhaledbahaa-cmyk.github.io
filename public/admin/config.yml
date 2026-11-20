@@ -1,0 +1,41 @@
+# لوحة تحكم لكتابة ونشر المقالات من المتصفح (Decap CMS)
+# راجع README.md لخطوات التفعيل
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/YOUR_REPO   # ← غيّرها
+  branch: main
+  # base_url: https://your-oauth-proxy.example.com  # عند الاستضافة خارج Netlify
+
+# للتجربة محليًا: شغّل `npx decap-server` ثم افتح /admin
+local_backend: true
+
+locale: ar
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: articles
+    label: المقالات
+    label_singular: مقال
+    folder: src/content/articles
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    sortable_fields: ["date", "title"]
+    fields:
+      - { label: "العنوان", name: title, widget: string }
+      - { label: "الوصف المختصر", name: description, widget: text }
+      - { label: "تاريخ النشر", name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - label: "التصنيف"
+        name: category
+        widget: select
+        options:
+          - { label: "تقنية", value: tech }
+          - { label: "ريادة أعمال", value: business }
+          - { label: "ثقافة", value: culture }
+          - { label: "تطوير الذات", value: growth }
+      - { label: "الوسوم", name: tags, widget: list, required: false }
+      - { label: "صورة الغلاف", name: cover, widget: image, required: false }
+      - { label: "وصف الصورة", name: coverAlt, widget: string, required: false }
+      - { label: "مقال مميز؟", name: featured, widget: boolean, default: false }
+      - { label: "مسودة؟", name: draft, widget: boolean, default: false }
+      - { label: "المحتوى", name: body, widget: markdown }

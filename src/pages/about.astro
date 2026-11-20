@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+<Base title="عن المدونة">
+  <div class="container">
+    <header class="article-head">
+      <span class="badge">من نحن</span>
+      <h1>عن {SITE.title}</h1>
+      <p class="lead">{SITE.description}</p>
+    </header>
+    <div class="prose" style="max-width:var(--read);margin:0 auto">
+      <p>«{SITE.title}» مساحة عربية مستقلة للكتابة المتأنية. نؤمن بأن المحتوى العربي يستحق مقالات عميقة، مكتوبة بعناية، تحترم وقت القارئ وعقله.</p>
+      <h2>ماذا نكتب؟</h2>
+      <ul>
+        <li><strong>تقنية:</strong> شرح مبسّط لأهم التحولات التقنية وأثرها على حياتنا.</li>
+        <li><strong>ريادة أعمال:</strong> دروس عملية من تجارب حقيقية في بناء المشاريع.</li>
+        <li><strong>ثقافة:</strong> قراءات في الكتب والأفكار واللغة.</li>
+        <li><strong>تطوير الذات:</strong> عادات وأدوات تساعد على حياة أكثر تركيزًا.</li>
+      </ul>
+      <h2>تواصل معنا</h2>
+      <p>يسعدنا سماع رأيك أو اقتراحك لموضوع جديد. تواصل معنا عبر <a href={SITE.social.x}>X</a> أو <a href={SITE.social.linkedin}>LinkedIn</a>.</p>
+    </div>
+  </div>
+</Base>

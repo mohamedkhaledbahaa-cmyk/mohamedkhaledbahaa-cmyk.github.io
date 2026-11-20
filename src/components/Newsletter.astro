@@ -1,0 +1,12 @@
+---
+// اربط النموذج بخدمة نشرات بريدية (مثل Buttondown أو Mailchimp) عبر تغيير action
+---
+<section class="newsletter">
+  <h2>لا تفوّت أي مقال جديد</h2>
+  <p>اشترك في النشرة البريدية وتصلك أحدث المقالات مرة في الأسبوع.</p>
+  <form action="#" method="post" onsubmit="event.preventDefault(); this.innerHTML='<p>شكرًا لاشتراكك! ✦</p>'">
+    <label for="nl-email" class="sr-only">البريد الإلكتروني</label>
+    <input id="nl-email" type="email" name="email" placeholder="بريدك الإلكتروني" required dir="ltr" style="text-align:right" />
+    <button class="btn" type="submit">اشترك</button>
+  </form>
+</section>

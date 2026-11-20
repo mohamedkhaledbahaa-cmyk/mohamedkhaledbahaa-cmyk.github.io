@@ -1,0 +1,16 @@
+---
+import { SITE } from '../config';
+import { toArabicDigits } from '../lib/utils';
+---
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>© {toArabicDigits(new Date().getFullYear())} {SITE.title} — جميع الحقوق محفوظة.</div>
+    <div class="footer-links">
+      <a href="/blog/">المقالات</a>
+      <a href="/about/">عن المدونة</a>
+      <a href="/rss.xml">RSS</a>
+      <a href={SITE.social.x} target="_blank" rel="noopener">X</a>
+      <a href={SITE.social.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</footer>

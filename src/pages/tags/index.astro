@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getArticles, tagUrl, toArabicDigits } from '../../lib/utils';
+const articles = await getArticles();
+const map = new Map<string, number>();
+articles.flatMap((a) => a.data.tags).forEach((t) => map.set(t, (map.get(t) ?? 0) + 1));
+const tags = [...map].sort((a, b) => b[1] - a[1]);
+---
+<Base title="الوسوم">
+  <div class="container">
+    <header class="page-head"><h1>الوسوم</h1><p>تصفّح المقالات حسب الموضوع</p></header>
+    <div class="chips">{tags.map(([t, n]) => <a class="chip" href={tagUrl(t)}># {t}<small>({toArabicDigits(n)})</small></a>)}</div>
+  </div>
+</Base>
