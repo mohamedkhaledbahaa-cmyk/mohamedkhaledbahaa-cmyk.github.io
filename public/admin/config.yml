@@ -2,7 +2,7 @@
 # راجع README.md لخطوات التفعيل
 backend:
   name: github
-  repo: YOUR_GITHUB_USERNAME/YOUR_REPO   # ← غيّرها
+  repo: mohamedkhaledbahaa-cmyk/blog
   branch: main
   # base_url: https://your-oauth-proxy.example.com  # عند الاستضافة خارج Netlify
 
