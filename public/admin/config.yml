@@ -1,15 +1,11 @@
-# لوحة تحكم لكتابة ونشر المقالات من المتصفح (Decap CMS)
-# راجع README.md لخطوات التفعيل
+# لوحة التحكم لكتابة ونشر المقالات من المتصفح (Sveltia CMS)
 backend:
   name: github
   repo: mohamedkhaledbahaa-cmyk/mohamedkhaledbahaa-cmyk.github.io
   branch: main
-  # base_url: https://your-oauth-proxy.example.com  # عند الاستضافة خارج Netlify
 
-# للتجربة محليًا: شغّل `npx decap-server` ثم افتح /admin
-local_backend: true
-
-locale: ar
+site_url: https://mohamedkhaledbahaa-cmyk.github.io
+logo_url: /logo-96.png
 media_folder: public/images/uploads
 public_folder: /images/uploads
 
@@ -19,23 +15,24 @@ collections:
     label_singular: مقال
     folder: src/content/articles
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{year}}-{{month}}-{{day}}-{{fields.slug}}"
     sortable_fields: ["date", "title"]
+    summary: "{{title}} — {{date}}"
     fields:
       - { label: "العنوان", name: title, widget: string }
-      - { label: "الوصف المختصر", name: description, widget: text }
-      - { label: "تاريخ النشر", name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+      - { label: "رابط المقال بالإنجليزي (مثال: cable-sizing)", name: slug, widget: string, pattern: ["^[a-z0-9-]+$", "حروف إنجليزي صغيرة وأرقام وشرطة (-) فقط"] }
+      - { label: "وصف مختصر", name: description, widget: text }
+      - { label: "تاريخ النشر", name: date, widget: datetime, format: "YYYY-MM-DD", time_format: false }
       - label: "التصنيف"
         name: category
         widget: select
         options:
-          - { label: "تقنية", value: tech }
-          - { label: "ريادة أعمال", value: business }
-          - { label: "ثقافة", value: culture }
-          - { label: "تطوير الذات", value: growth }
+          - { label: "تحليل جداول الكميات", value: boq }
+          - { label: "تقدير التكاليف", value: estimation }
+          - { label: "العروض الفنية والتجارية", value: proposals }
+          - { label: "مشاريع EPC", value: epc }
       - { label: "الوسوم", name: tags, widget: list, required: false }
       - { label: "صورة الغلاف", name: cover, widget: image, required: false }
-      - { label: "وصف الصورة", name: coverAlt, widget: string, required: false }
-      - { label: "مقال مميز؟", name: featured, widget: boolean, default: false }
-      - { label: "مسودة؟", name: draft, widget: boolean, default: false }
+      - { label: "مقال مميز في الرئيسية؟", name: featured, widget: boolean, default: false, required: false }
+      - { label: "مسودة (مخفي)؟", name: draft, widget: boolean, default: false, required: false }
       - { label: "المحتوى", name: body, widget: markdown }

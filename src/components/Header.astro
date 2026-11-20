@@ -11,7 +11,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 ---
 <header class="site-header">
   <nav class="container nav" aria-label="القائمة الرئيسية">
-    <a href="/" class="brand"><span class="brand-mark">م</span>{SITE.title}</a>
+    <a href="/" class="brand" dir="ltr"><img src="/logo-96.png" alt="" width="44" height="44" />{SITE.title}</a>
     <ul class="nav-links" id="nav-links">
       {links.map((l) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
     </ul>

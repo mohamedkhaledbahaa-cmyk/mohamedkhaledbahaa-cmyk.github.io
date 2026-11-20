@@ -1,4 +1,4 @@
-# مِداد — مدونة عربية احترافية
+# Watt's Tender — مقالات الهندسة الكهربائية والمناقصات
 
 موقع مقالات عربي سريع وأنيق مبني بـ [Astro](https://astro.build). يدعم الاتجاه من اليمين لليسار (RTL) بالكامل.
 
@@ -26,7 +26,7 @@ npm run build      # يُخرج الموقع الجاهز في dist/
 title: "عنوان المقال"
 description: "وصف قصير يظهر في البطاقات ونتائج البحث"
 date: 2026-11-20
-category: tech            # tech | business | culture | growth
+category: boq             # boq | estimation | proposals | epc
 tags: ["وسم 1", "وسم 2"]
 cover: /images/my-cover.jpg   # اختياري — ضع الصورة في public/images
 featured: false           # true ليظهر كمقال مميز في الرئيسية
@@ -46,17 +46,13 @@ draft: false              # true لإخفائه
 - **الألوان والخطوط:** أعلى ملف `src/styles/global.css`
 - **رابط الموقع النهائي:** `site` في `astro.config.mjs`
 
-## النشر على الإنترنت (مجانًا)
-1. ارفع المشروع إلى مستودع على GitHub.
-2. اربطه بـ **Netlify** أو **Vercel** أو **Cloudflare Pages**.
-3. أمر البناء: `npm run build` — مجلد النشر: `dist`.
-
-كل مقال جديد تضيفه إلى المستودع يُنشر تلقائيًا خلال دقيقة.
+## النشر على الإنترنت
+الموقع منشور تلقائيًا على GitHub Pages: https://mohamedkhaledbahaa-cmyk.github.io
+أي تعديل يترفع على فرع `main` بيتنشر لوحده خلال دقيقتين (`.github/workflows/deploy.yml`).
 
 ## لوحة التحكم (الكتابة من المتصفح)
-موجودة على `/admin` وتستخدم Decap CMS:
-1. عدّل `repo` في `public/admin/config.yml` إلى `اسمك/اسم-المستودع`.
-2. على Netlify: فعّل GitHub OAuth من إعدادات الموقع (Access control → OAuth).
-3. افتح `https://موقعك/admin` وسجّل الدخول بحساب GitHub، واكتب وانشر.
-
-للتجربة محليًا: شغّل `npx decap-server` مع `npm run dev` ثم افتح `http://localhost:4321/admin`.
+على `/admin` (Sveltia CMS):
+1. اعمل توكن من https://github.com/settings/personal-access-tokens/new
+   - Repository access: Only select repositories ← `mohamedkhaledbahaa-cmyk.github.io`
+   - Permissions ← Contents: **Read and write**
+2. افتح https://mohamedkhaledbahaa-cmyk.github.io/admin واختار **Sign In with Token** والصق التوكن.
