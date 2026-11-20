@@ -2,7 +2,7 @@
 # راجع README.md لخطوات التفعيل
 backend:
   name: github
-  repo: mohamedkhaledbahaa-cmyk/blog
+  repo: mohamedkhaledbahaa-cmyk/mohamedkhaledbahaa-cmyk.github.io
   branch: main
   # base_url: https://your-oauth-proxy.example.com  # عند الاستضافة خارج Netlify
 
