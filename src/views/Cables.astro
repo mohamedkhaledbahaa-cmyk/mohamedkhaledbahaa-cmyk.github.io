@@ -1,0 +1,239 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, type Lang } from '../i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+const ar = lang === 'ar';
+const S = ar ? {
+  title: 'تسعير الكابلات', lead: 'اختار نوع الكابل والمقاس والجهد والمورد، وخد السعر المقترح والعرض الفني فورًا.',
+  settings: 'إعدادات التسعير', project: 'اسم المشروع', brand: 'المورد المطلوب', allBrands: 'متوسط كل الموردين', wastage: 'نسبة الهالك %', margin: 'نسبة الربح %', vat: 'ضريبة القيمة المضافة %',
+  cables: 'الكابلات المطلوبة', type: 'نوع الكابل (التوصيف)', size: 'المقاس (مم²)', voltage: 'الجهد', qty: 'الكمية (م)', override: 'سعر يدوي ج/م', add: '+ إضافة كابل', clear: 'مسح الكل', remove: 'حذف',
+  hint: 'القوايم مترابطة: لما تختار النوع بيظهرلك المقاسات المتاحة له بس، وبعدها الجهود المتاحة. السعر = متوسط كل أسعار المورد المختار لنفس الكابل (محدّث على أسعار المعادن). لو المورد مالوش سعر للكابل ده، بيتاخد متوسط كل الموردين.',
+  result: 'النتيجة', perM: 'ج/م', basis: 'سعر الأساس', cost: 'التكلفة بالهالك', sell: 'سعر البيع', total: 'الإجمالي',
+  sumCost: 'إجمالي التكلفة', sumSell: 'إجمالي البيع', sumMargin: 'الربح', sumVat: 'الإجمالي شامل الضريبة', usd: 'بالدولار (للمرجع)', excl: 'جنيه مصري — بدون ضريبة',
+  src: { supplier: (n: number) => `متوسط ${n} سعر من المورد`, fallback: (n: number) => `بديل: متوسط ${n} سعر من كل الموردين`, all: (n: number) => `متوسط ${n} سعر من كل الموردين`, none: 'مش موجود في قاعدة البيانات', manual: 'سعر يدوي' },
+  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
+  disclaimer: 'الأسعار تقريبية (Budget) ومحدّثة على أسعار النحاس والألومنيوم والدولار المكتوبة فوق. راجع المورد قبل التعاقد.',
+} : {
+  title: 'Cable Pricing', lead: 'Pick the cable type, size, voltage and supplier to get a suggested price and a technical offer instantly.',
+  settings: 'Pricing settings', project: 'Project', brand: 'Required supplier', allBrands: 'Average of all suppliers', wastage: 'Wastage %', margin: 'Margin %', vat: 'VAT %',
+  cables: 'Required cables', type: 'Cable type (description)', size: 'Size (mm²)', voltage: 'Voltage', qty: 'Qty (m)', override: 'Manual EGP/m', add: '+ Add cable', clear: 'Clear all', remove: 'Remove',
+  hint: 'Lists are linked: choosing a type shows only its sizes, then the available voltages. Price = average of all prices of the selected supplier for the same cable (indexed to metal prices). If that supplier has no price for the cable, the all-supplier average is used.',
+  result: 'Result', perM: 'EGP/m', basis: 'Basis', cost: 'Cost incl. wastage', sell: 'Sell', total: 'Total',
+  sumCost: 'Total cost', sumSell: 'Total sell', sumMargin: 'Margin', sumVat: 'Total incl. VAT', usd: 'In USD (reference)', excl: 'EGP — excl. VAT',
+  src: { supplier: (n: number) => `Avg of ${n} supplier prices`, fallback: (n: number) => `Fallback: avg of ${n} prices, all suppliers`, all: (n: number) => `Avg of ${n} prices, all suppliers`, none: 'Not in database', manual: 'Manual rate' },
+  offerBtn: 'Show technical offer →', print: 'Print / save PDF', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
+  disclaimer: 'Budget prices indexed to the copper, aluminium and USD rates shown above. Confirm with the supplier before ordering.',
+};
+const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
+---
+<Base lang={lang} title={L.nav.cables} description={S.lead}>
+  <div class="container pricing" id="cables" data-s={JSON.stringify(txt)} data-lang={lang}>
+    <header class="page-head no-print">
+      <span class="badge">🔌 {L.nav.cables}</span>
+      <h1 style="margin-top:12px">{S.title}</h1>
+      <p>{S.lead}</p>
+      <p class="pr-db" id="cb-db">{S.loading}</p>
+    </header>
+
+    <div class="pr-layout no-print">
+      <form class="pr-form" id="cb-form" autocomplete="off" onsubmit="return false">
+        <section class="pr-card">
+          <h2><span class="pr-num">1</span>{S.settings}</h2>
+          <div class="pr-grid">
+            <label>{S.project}<input name="project" value="Project name" /></label>
+            <label>{S.brand}<select name="brand" id="cb-brand"><option value="all">{S.allBrands}</option></select></label>
+            <label>{S.wastage}<input name="wastage" type="number" step="any" value="3" /></label>
+            <label>{S.margin}<input name="margin" type="number" step="any" value="10" /></label>
+            <label>{S.vat}<input name="vat" type="number" step="any" value="14" /></label>
+          </div>
+        </section>
+
+        <section class="pr-card">
+          <h2><span class="pr-num">2</span>{S.cables}</h2>
+          <div class="cb-lines" id="cb-lines"></div>
+          <div class="pr-actions">
+            <button type="button" class="btn-ghost" id="cb-add">{S.add}</button>
+            <button type="button" class="btn-ghost" id="cb-clear">{S.clear}</button>
+          </div>
+          <p class="pr-hint">{S.hint}</p>
+        </section>
+      </form>
+
+      <aside class="pr-result" aria-live="polite">
+        <div class="pr-card pr-sticky">
+          <h2><span class="pr-num">3</span>{S.result}</h2>
+          <p class="pr-label">{S.sumSell}</p>
+          <p class="pr-price"><span id="c-sell">—</span> <small>{S.excl}</small></p>
+          <dl class="pr-dl">
+            <div><dt>{S.sumCost}</dt><dd id="c-cost">—</dd></div>
+            <div><dt>{S.sumMargin}</dt><dd id="c-margin">—</dd></div>
+            <div><dt>{S.sumVat}</dt><dd id="c-vat">—</dd></div>
+            <div><dt>{S.usd}</dt><dd id="c-usd">—</dd></div>
+          </dl>
+          <div class="cb-breakdown" id="c-lines"></div>
+          <button type="button" class="btn pr-offer-btn" id="cb-offer-btn">{S.offerBtn}</button>
+          <p class="pr-hint">{S.disclaimer}</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="pr-offer-wrap" id="cb-offer-wrap" hidden>
+      <div class="no-print" style="display:flex;justify-content:flex-end"><button type="button" class="btn" id="cb-print">🖨 {S.print}</button></div>
+      <article class="offer" id="cb-offer" dir="ltr" lang="en"></article>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { CableEstimator, CABLE_NOTES, type CableData, type CableLine } from '../lib/cables';
+
+  const root = document.getElementById('cables')!;
+  const S = JSON.parse(root.dataset.s!);
+  const ar = root.dataset.lang === 'ar';
+  const srcText = {
+    supplier: (n: number) => (ar ? `متوسط ${n} سعر من المورد` : `Avg of ${n} supplier prices`),
+    fallback: (n: number) => (ar ? `بديل: متوسط ${n} سعر من كل الموردين` : `Fallback: avg of ${n} prices, all suppliers`),
+    all: (n: number) => (ar ? `متوسط ${n} سعر من كل الموردين` : `Avg of ${n} prices, all suppliers`),
+  };
+  const form = document.getElementById('cb-form') as HTMLFormElement;
+  const box = document.getElementById('cb-lines')!;
+  const $ = (id: string) => document.getElementById(id)!;
+  const fmt = (x: number | null, d = 0) => (x == null || !isFinite(x) ? '—' : x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const STORE = 'wt-cables-v1';
+  let est: CableEstimator | null = null;
+  let offerOpen = false;
+  let pending: CableLine[] = [];
+
+  const opts = (list: string[], sel?: string, blank = true) =>
+    (blank ? '<option value="">—</option>' : '') + list.map((v) => `<option${v === sel ? ' selected' : ''}>${esc(v)}</option>`).join('');
+
+  function addLine(l: Partial<CableLine> = {}) {
+    if (!est) { pending.push(l as CableLine); return; }
+    const row = document.createElement('div');
+    row.className = 'cb-line';
+    row.innerHTML = `
+      <span class="cb-idx"></span>
+      <label class="cb-type">${S.type}<select data-f="type">${opts(est.types(), l.type)}</select></label>
+      <label>${S.size}<select data-f="size"></select></label>
+      <label>${S.voltage}<select data-f="voltage"></select></label>
+      <label>${S.qty}<input data-f="qty" type="number" min="0" step="any" value="${l.qty ?? 100}" /></label>
+      <label>${S.override}<input data-f="override" type="number" min="0" step="any" value="${l.override || ''}" placeholder="—" /></label>
+      <button type="button" class="pr-x" aria-label="${S.remove}">×</button>`;
+    const sel = (f: string) => row.querySelector(`[data-f=${f}]`) as HTMLSelectElement;
+    const fillSizes = (keep?: string) => {
+      const t = sel('type').value;
+      sel('size').innerHTML = opts(est!.sizes(t), keep);
+      fillVolts();
+    };
+    const fillVolts = (keep?: string) => {
+      const v = est!.voltages(sel('type').value, sel('size').value);
+      sel('voltage').innerHTML = opts(v, keep ?? v[0], false);
+    };
+    sel('type').addEventListener('change', () => fillSizes());
+    sel('size').addEventListener('change', () => fillVolts());
+    row.querySelector('.pr-x')!.addEventListener('click', () => { row.remove(); renumber(); update(); });
+    box.appendChild(row);
+    if (l.type) { sel('size').innerHTML = opts(est.sizes(l.type), l.size); fillVolts(l.voltage); } else fillSizes();
+    renumber();
+  }
+  function renumber() { box.querySelectorAll('.cb-idx').forEach((s, i) => (s.textContent = String(i + 1))); }
+
+  function read() {
+    const f = new FormData(form);
+    const lines: CableLine[] = [...box.querySelectorAll('.cb-line')].map((r) => {
+      const v = (k: string) => (r.querySelector(`[data-f=${k}]`) as HTMLInputElement).value;
+      return { type: v('type'), size: v('size'), voltage: v('voltage'), qty: +v('qty') || 0, override: +v('override') || 0 };
+    });
+    return {
+      project: String(f.get('project') ?? ''),
+      settings: { brand: String(f.get('brand') ?? 'all'), wastage: (+String(f.get('wastage')) || 0) / 100, margin: (+String(f.get('margin')) || 0) / 100, vat: (+String(f.get('vat')) || 0) / 100 },
+      lines,
+    };
+  }
+
+  function update() {
+    if (!est) return;
+    const inp = read();
+    try { localStorage.setItem(STORE, JSON.stringify(inp)); } catch {}
+    const r = est.price(inp.lines, inp.settings);
+    $('c-sell').textContent = fmt(r.sell);
+    $('c-cost').textContent = `${fmt(r.cost)} EGP`;
+    $('c-margin').textContent = `${fmt(r.margin)} EGP`;
+    $('c-vat').textContent = `${fmt(r.incVat)} EGP`;
+    $('c-usd').textContent = `$ ${fmt(r.usd)}`;
+    $('c-lines').innerHTML = r.lines.map((x, i) => {
+      const src = x.line.override ? S.src.manual : x.mode === 'none' ? S.src.none : srcText[x.mode](x.n);
+      return `<div class="cb-res${x.mode === 'none' && !x.line.override ? ' cb-miss' : ''}">
+        <div class="cb-res-h"><b>${i + 1}. ${esc(x.line.type)} ${esc(x.line.size)}</b><span>${esc(x.line.voltage)}</span></div>
+        <div class="cb-res-g"><span>${S.basis}</span><b>${fmt(x.base, 2)}</b><span>${S.sell}</span><b>${fmt(x.sell, 2)}</b><span>${S.total}</span><b>${fmt(x.total)}</b></div>
+        <small class="${x.mode === 'fallback' ? 'cb-warn' : ''}">${esc(src)}</small></div>`;
+    }).join('');
+    if (offerOpen) renderOffer(inp);
+  }
+
+  function renderOffer(inp: ReturnType<typeof read>) {
+    const d = est!.d;
+    const brand = inp.settings.brand === 'all' ? 'As per approved supplier' : inp.settings.brand;
+    const rows = inp.lines.filter((l) => l.type && l.size).map((l, i) => {
+      const t = est!.tech(l);
+      const b = est!.basis(l, inp.settings.brand);
+      const mfr = b.mode === 'supplier' ? brand : 'As per approved supplier';
+      const z = (v: number) => (v ? String(v) : '-');
+      return `<tr><td>${i + 1}</td><td class="o-desc"><b>${esc(t.designation)}</b><br><small>${esc(t.construction)}</small></td><td>${esc(mfr)}</td><td>${esc(t.standards)}</td>
+        <td>${esc(t.voltage)}</td><td>${esc(t.temp)}</td><td class="o-num">${z(t.rdc)}</td><td class="o-num">${z(t.ig)}</td><td class="o-num">${z(t.id)}</td><td class="o-num">${z(t.ia)}</td>
+        <td class="o-num">${z(t.od)}</td><td class="o-num">${z(t.w)}</td><td class="o-num">${fmt(l.qty)}</td><td><small>${esc(t.source)}</small></td></tr>`;
+    }).join('');
+    $('cb-offer').innerHTML = `
+      <header class="o-top"><img src="/logo-96.png" alt="" width="64" height="64" />
+        <div><h2>TECHNICAL OFFER – POWER CABLES</h2><p>Indexed to LME Cu ${fmt(d.meta.cu)} $/t • Al ${fmt(d.meta.al)} $/t • USD ${d.meta.usd} EGP</p></div></header>
+      <table class="o-info">
+        <tr><th>Project</th><td>${esc(inp.project)}</td><th>Date</th><td>${esc(d.meta.priceDate)}</td></tr>
+        <tr><th>Ref.</th><td>TO-CBL-${esc(d.meta.priceDate.replace(/-/g, ''))}</td><th>Submitted by</th><td>Watt's Tender</td></tr>
+        <tr><th>Manufacturer</th><td>${esc(brand)}</td><th>Total (excl. VAT)</th><td><b>${fmt(est!.price(inp.lines, inp.settings).sell)} EGP</b></td></tr>
+      </table>
+      <h3>CABLE SCHEDULE & TECHNICAL DATA</h3>
+      <div class="o-scroll"><table class="o-bom">
+        <thead><tr><th>Item</th><th>Cable designation / construction</th><th>Manufacturer</th><th>Standards</th><th>Rated voltage</th><th>Max. cond. temp.</th><th>Rdc 20°C (Ω/km)</th><th>I ground (A)</th><th>I duct (A)</th><th>I air (A)</th><th>Approx. OD (mm)</th><th>Approx. weight (kg/km)</th><th>Qty (m)</th><th>Technical data source</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <h3>NOTES</h3>
+      <ol class="o-notes">${CABLE_NOTES.map((n) => `<li>${esc(n)}</li>`).join('')}</ol>`;
+  }
+
+  $('cb-add').addEventListener('click', () => { addLine(); update(); });
+  $('cb-clear').addEventListener('click', () => { box.innerHTML = ''; addLine(); update(); });
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  $('cb-offer-btn').addEventListener('click', () => {
+    offerOpen = true; ($('cb-offer-wrap') as HTMLElement).hidden = false; update();
+    $('cb-offer-wrap').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('cb-print').addEventListener('click', () => window.print());
+
+  fetch('/cables/data.json').then((r) => r.json()).then((d: CableData) => {
+    est = new CableEstimator(d);
+    ($('cb-brand') as HTMLSelectElement).insertAdjacentHTML('beforeend', est.brands.map((b) => `<option>${esc(b)}</option>`).join(''));
+    $('cb-db').textContent = ar
+      ? `مبني على ${d.meta.prices} سعر من ${d.meta.brands} مورد — محدّث لتاريخ ${d.meta.priceDate} — نحاس ${fmt(d.meta.cu)} $/طن • ألومنيوم ${fmt(d.meta.al)} $/طن • الدولار ${d.meta.usd}`
+      : `Based on ${d.meta.prices} prices from ${d.meta.brands} suppliers — updated ${d.meta.priceDate} — Cu ${fmt(d.meta.cu)} $/t • Al ${fmt(d.meta.al)} $/t • USD ${d.meta.usd}`;
+    let saved: any = null;
+    try { saved = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch {}
+    if (saved) {
+      for (const [k, v] of Object.entries(saved.settings || {})) {
+        const el = form.elements.namedItem(k) as HTMLInputElement | null;
+        if (el) el.value = k === 'brand' ? String(v) : String(Math.round(Number(v) * 10000) / 100);
+      }
+      (form.elements.namedItem('project') as HTMLInputElement).value = saved.project ?? '';
+      (saved.lines || []).forEach((l: CableLine) => addLine(l));
+    } else {
+      (form.elements.namedItem('brand') as HTMLSelectElement).value = est.brands[0] ?? 'all';
+      [{ type: 'CU/XLPE/PVC', size: '4X16', voltage: '0.6/1 kV', qty: 1000 }, { type: 'CU/XLPE/PVC', size: '4X95', voltage: '0.6/1 kV', qty: 500 }].forEach((l) => addLine(l));
+    }
+    if (!box.children.length) addLine();
+    pending.forEach((l) => addLine(l)); pending = [];
+    update();
+  }).catch((e) => { console.error(e); $('cb-db').textContent = S.err; });
+</script>

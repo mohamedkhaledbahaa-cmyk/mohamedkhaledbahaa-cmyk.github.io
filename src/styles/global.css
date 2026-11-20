@@ -429,3 +429,28 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
   .rv { opacity: 1; transform: none; }
 }
 :root:not([data-theme='dark']) .hero h1 span { background-image: linear-gradient(90deg, #8a5a0b, #c98f24, #8a5a0b); }
+
+/* ===== Cable pricing ===== */
+.hero-cta { margin-top: 22px !important; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+.btn-outline:hover { background: var(--accent-soft); }
+.cb-lines { display: flex; flex-direction: column; gap: 12px; }
+.cb-line { display: grid; grid-template-columns: 26px minmax(150px,1.7fr) minmax(90px,1fr) minmax(105px,1.1fr) minmax(70px,.8fr) minmax(80px,.9fr) 40px; gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); animation: rowIn .35s ease both; }
+.cb-line label { display: flex; flex-direction: column; gap: 5px; font-size: .78rem; color: var(--muted); font-weight: 500; min-width: 0; }
+.cb-idx { align-self: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: .8rem; color: var(--muted); }
+@media (max-width: 760px) {
+  .cb-line { grid-template-columns: 1fr 1fr; }
+  .cb-line .cb-type { grid-column: 1 / -1; }
+  .cb-idx { grid-column: 1; } .cb-line .pr-x { grid-column: 2; justify-self: end; grid-row: 1; }
+}
+.cb-breakdown { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; max-height: 420px; overflow: auto; }
+.cb-res { padding: 12px; border-radius: 10px; background: var(--surface-2); font-size: .85rem; }
+.cb-res-h { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.cb-res-h span { color: var(--muted); white-space: nowrap; }
+.cb-res-g { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+.cb-res-g span { color: var(--muted); }
+.cb-res-g b { text-align: end; font-variant-numeric: tabular-nums; }
+.cb-res small { display: block; margin-top: 6px; color: var(--muted); }
+.cb-res .cb-warn { color: var(--accent); }
+.cb-miss { outline: 1px dashed #d9534f; }
+.cb-miss .cb-res-h b { color: #d9534f; }

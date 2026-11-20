@@ -39,7 +39,7 @@ const latest = articles.filter((a) => a !== featured).slice(0, 6);
     <div class="hero-logo-wrap"><img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" /></div>
     <h1 set:html={L.heroTitle} />
     <p>{L.description}</p>
-    <p style="margin-top:22px"><a class="btn" href={url(lang, '/pricing/')}>⚡ {L.nav.pricing}</a></p>
+    <p class="hero-cta"><a class="btn" href={url(lang, '/pricing/')}>⚡ {L.nav.pricing}</a><a class="btn btn-outline" href={url(lang, '/cables/')}>🔌 {L.nav.cables}</a></p>
   </section>
 
   <div class="container">

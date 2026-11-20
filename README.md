@@ -71,3 +71,13 @@ pip install openpyxl
 python3 tools/export_pricing.py "LV_Panel_Pricing_Database_v5.9.xlsx"
 ```
 وارفع الملف `public/pricing/data.json` الجديد.
+
+## تسعير الكابلات (`/cables`)
+نسخة من شيت `Cable_Pricing_DB_LME` (أساس التسعير "متوسط مورد معين"): السعر = متوسط كل أسعار المورد المختار لنفس الكابل، ولو مالوش سعر بيتاخد متوسط كل الموردين. العرض الفني من كتالوج السويدي.
+- الحسابات: `src/lib/cables.ts` — الصفحة: `src/views/Cables.astro`
+- البيانات: `public/cables/data.json` (نوع الكابل + المقاس + الجهد + الماركة + السعر النهارده بس — بدون عروض أو مشاريع)
+
+**تحديث الأسعار:** حدّث أسعار النهارده في الشيت (LME + الدولار) واحفظه، وبعدين:
+```bash
+python3 tools/export_cables.py "Cable_Pricing_DB_LME_2.xlsm"
+```
