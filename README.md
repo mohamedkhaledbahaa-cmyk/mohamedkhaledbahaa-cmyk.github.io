@@ -59,3 +59,15 @@ draft: false              # true لإخفائه
    - Repository access: Only select repositories ← `mohamedkhaledbahaa-cmyk.github.io`
    - Permissions ← Contents: **Read and write**
 2. افتح https://mohamedkhaledbahaa-cmyk.github.io/admin واختار **Sign In with Token** والصق التوكن.
+
+## تسعير اللوحات (`/pricing`)
+الأداة نسخة من شيت `LV_Panel_Pricing_Database` وبتدي نفس أرقامه بالظبط (السعر، المدى، الأبعاد، العرض الفني).
+- الحسابات: `src/lib/pricing.ts` — الصفحة: `src/views/Pricing.astro`
+- البيانات: `public/pricing/data.json` (بدون أسماء مشاريع أو موردين)
+
+**تحديث الأسعار بعد ما تعدّل الشيت:** افتح الشيت في Excel واحفظه، وبعدين:
+```bash
+pip install openpyxl
+python3 tools/export_pricing.py "LV_Panel_Pricing_Database_v5.9.xlsx"
+```
+وارفع الملف `public/pricing/data.json` الجديد.
