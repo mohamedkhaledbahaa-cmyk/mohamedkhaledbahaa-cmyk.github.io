@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { SITE } from '../config';
+import { CATEGORY_KEYS, num, t, url, type Lang } from '../i18n';
+import { getArticles } from '../lib/utils';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+const articles = await getArticles(lang);
+const featured = articles.find((a) => a.data.featured) ?? articles[0];
+const latest = articles.filter((a) => a !== featured).slice(0, 6);
+---
+<Base lang={lang}>
+  <section class="hero container">
+    <img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" />
+    <h1 set:html={L.heroTitle} />
+    <p>{L.description}</p>
+    <p style="margin-top:22px"><a class="btn" href={url(lang, '/pricing/')}>⚡ {L.nav.pricing}</a></p>
+  </section>
+
+  <div class="container">
+    {featured && <section class="section"><ArticleCard article={featured} featured /></section>}
+
+    <section class="section">
+      <div class="chips">
+        {CATEGORY_KEYS.map((k) => (
+          <a class="chip" href={url(lang, `/category/${k}/`)}>{L.categories[k]}<small>({num(lang, articles.filter((a) => a.data.category === k).length)})</small></a>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>{L.latest}</h2><a href={url(lang, '/blog/')}>{L.allArrow}</a></div>
+      {latest.length ? <div class="grid">{latest.map((a) => <ArticleCard article={a} />)}</div> : <p class="empty">{L.noMore}</p>}
+    </section>
+
+    <Newsletter lang={lang} />
+  </div>
+</Base>

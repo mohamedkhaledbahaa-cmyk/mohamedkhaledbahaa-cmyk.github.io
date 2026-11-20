@@ -1,19 +1,10 @@
 ---
-import Base from '../../layouts/Base.astro';
-import ArticleCard from '../../components/ArticleCard.astro';
-import { getArticles, toArabicDigits } from '../../lib/utils';
-
+import Tag from '../../views/Tag.astro';
+import { getArticles } from '../../lib/utils';
 export async function getStaticPaths() {
-  const articles = await getArticles();
+  const articles = await getArticles('ar');
   const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
   return tags.map((tag) => ({ params: { tag }, props: { articles: articles.filter((a) => a.data.tags.includes(tag)) } }));
 }
-const { tag } = Astro.params;
-const { articles } = Astro.props;
 ---
-<Base title={`وسم: ${tag}`}>
-  <div class="container">
-    <header class="page-head"><h1># {tag}</h1><p>{toArabicDigits(articles.length)} مقال · <a href="/tags/" style="color:var(--accent)">كل الوسوم</a></p></header>
-    <div class="grid">{articles.map((a) => <ArticleCard article={a} />)}</div>
-  </div>
-</Base>
+<Tag lang="ar" tag={Astro.params.tag!} articles={Astro.props.articles} />

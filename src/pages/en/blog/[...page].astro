@@ -1,0 +1,9 @@
+---
+import type { GetStaticPaths, Page } from 'astro';
+import BlogList from '../../../views/BlogList.astro';
+import { SITE } from '../../../config';
+import { getArticles, type Article } from '../../../lib/utils';
+export const getStaticPaths = (async ({ paginate }) => paginate(await getArticles('en'), { pageSize: SITE.postsPerPage })) satisfies GetStaticPaths;
+const { page } = Astro.props as { page: Page<Article> };
+---
+<BlogList lang="en" page={page} />

@@ -3,44 +3,53 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../config';
+import { altPath, t, type Lang } from '../i18n';
 
 interface Props {
+  lang: Lang;
   title?: string;
   description?: string;
   image?: string;
   type?: 'website' | 'article';
   publishedTime?: Date;
+  /** رابط نفس الصفحة باللغة الأخرى (لو مش موجودة، استخدم الرئيسية) */
+  altHref?: string;
 }
-const { title, description = SITE.description, image, type = 'website', publishedTime } = Astro.props;
-const fullTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} — ${SITE.tagline}`;
+const { lang, title, image, type = 'website', publishedTime } = Astro.props;
+const L = t(lang);
+const description = Astro.props.description ?? L.description;
+const altHref = Astro.props.altHref ?? altPath(Astro.url.pathname);
+const fullTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} — ${L.tagline}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? '/og-default.jpg', Astro.site).href;
+const otherLang = lang === 'ar' ? 'en' : 'ar';
 ---
 <!doctype html>
-<html lang={SITE.lang} dir="rtl">
+<html lang={lang} dir={L.dir}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={otherLang} href={new URL(altHref, Astro.site)} />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0d1320" />
-    <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={lang === 'ar' ? '/rss.xml' : '/en/rss.xml'} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.title} />
-    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_AR' : 'en_US'} />
     <meta property="og:image" content={ogImage} />
     {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Montserrat:wght@700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Noto+Naskh+Arabic:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
     <script is:inline>
       (function () {
         try {
@@ -52,9 +61,9 @@ const ogImage = new URL(image ?? '/og-default.jpg', Astro.site).href;
     </script>
   </head>
   <body>
-    <a href="#main" class="sr-only">تخطَّ إلى المحتوى</a>
-    <Header />
+    <a href="#main" class="sr-only">{L.skip}</a>
+    <Header lang={lang} altHref={altHref} />
     <main id="main"><slot /></main>
-    <Footer />
+    <Footer lang={lang} />
   </body>
 </html>

@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+---
+<Base lang={lang} title={L.nav.pricing}>
+  <div class="container">
+    <header class="article-head">
+      <span class="badge">⚡ {lang === 'ar' ? 'قريبًا' : 'Coming soon'}</span>
+      <h1>{L.nav.pricing}</h1>
+      <p class="lead">{lang === 'ar' ? 'أداة لتسعير لوحات التوزيع الكهربائية أونلاين — قيد التجهيز.' : 'An online tool to price electrical distribution panels — under construction.'}</p>
+    </header>
+  </div>
+</Base>

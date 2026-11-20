@@ -40,6 +40,9 @@ draft: false              # true لإخفائه
 
 اسم الملف يصبح رابط المقال: `/posts/my-article/`.
 
+**مقال بالإنجليزي:** ضع الملف في `src/content/articles/en/` وأضف `lang: en` — يظهر على `/en/posts/...`.
+نصوص الواجهة بالعربي والإنجليزي موجودة في `src/i18n.ts`.
+
 ## التخصيص
 - **اسم الموقع والوصف والكاتب وروابط التواصل:** `src/config.ts`
 - **التصنيفات:** `src/config.ts` و`src/content.config.ts` (وأيضًا `public/admin/config.yml`)

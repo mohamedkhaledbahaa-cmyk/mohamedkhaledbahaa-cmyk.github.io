@@ -1,31 +1,34 @@
 ---
-import { CATEGORIES } from '../config';
-import { formatDate, readingTime, readingLabel, type Article } from '../lib/utils';
+import { t, url } from '../i18n';
+import { formatDate, postUrl, readingTime, type Article } from '../lib/utils';
 interface Props { article: Article; featured?: boolean }
 const { article, featured = false } = Astro.props;
-const { title, description, date, category, cover, coverAlt } = article.data;
-const url = `/posts/${article.id}/`;
-const mins = readingTime(article.body);
+const { title, description, date, category, cover, coverAlt, lang } = article.data;
+const L = t(lang);
+const href = postUrl(article);
+const catHref = url(lang, `/category/${category}/`);
+const meta = `${formatDate(lang, date)}`;
+const mins = L.reading(readingTime(article.body));
 ---
 {featured ? (
   <article class="featured">
-    {cover && <a href={url} class="card-cover"><img src={cover} alt={coverAlt ?? title} loading="eager" /></a>}
+    {cover && <a href={href} class="card-cover"><img src={cover} alt={coverAlt ?? title} loading="eager" /></a>}
     <div class="featured-body">
-      <a href={`/category/${category}/`} class="badge">{CATEGORIES[category]}</a>
-      <h2><a href={url}>{title}</a></h2>
+      <a href={catHref} class="badge">{L.categories[category]}</a>
+      <h2><a href={href}>{title}</a></h2>
       <p>{description}</p>
-      <div class="meta"><time datetime={date.toISOString()}>{formatDate(date)}</time><span class="dot"></span><span>{readingLabel(mins)}</span></div>
-      <a href={url} class="btn" style="align-self:flex-start;margin-top:8px">اقرأ المقال</a>
+      <div class="meta"><time datetime={date.toISOString()}>{meta}</time><span class="dot"></span><span>{mins}</span></div>
+      <a href={href} class="btn" style="align-self:flex-start;margin-top:8px">{L.readArticle}</a>
     </div>
   </article>
 ) : (
   <article class="card">
-    {cover && <a href={url} class="card-cover" tabindex="-1" aria-hidden="true"><img src={cover} alt="" loading="lazy" /></a>}
+    {cover && <a href={href} class="card-cover" tabindex="-1" aria-hidden="true"><img src={cover} alt="" loading="lazy" /></a>}
     <div class="card-body">
-      <a href={`/category/${category}/`} class="badge">{CATEGORIES[category]}</a>
-      <h3><a href={url}>{title}</a></h3>
+      <a href={catHref} class="badge">{L.categories[category]}</a>
+      <h3><a href={href}>{title}</a></h3>
       <p>{description}</p>
-      <div class="meta"><time datetime={date.toISOString()}>{formatDate(date)}</time><span class="dot"></span><span>{readingLabel(mins)}</span></div>
+      <div class="meta"><time datetime={date.toISOString()}>{meta}</time><span class="dot"></span><span>{mins}</span></div>
     </div>
   </article>
 )}

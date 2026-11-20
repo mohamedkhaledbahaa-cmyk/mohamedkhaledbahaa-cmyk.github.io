@@ -1,10 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="الصفحة غير موجودة">
+<Base lang="ar" altHref="/en/">
   <div class="container hero">
-    <h1><span>٤٠٤</span></h1>
+    <h1><span>404</span></h1>
     <p>عذرًا، الصفحة التي تبحث عنها غير موجودة أو نُقلت.</p>
-    <p style="margin-top:24px"><a class="btn" href="/">العودة للرئيسية</a></p>
+    <p lang="en" dir="ltr">Sorry, the page you're looking for doesn't exist.</p>
+    <p style="margin-top:24px;display:flex;gap:10px;justify-content:center"><a class="btn" href="/">الرئيسية</a><a class="btn" href="/en/">Home</a></p>
   </div>
 </Base>

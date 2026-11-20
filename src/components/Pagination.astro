@@ -1,15 +1,16 @@
 ---
-import { toArabicDigits } from '../lib/utils';
-interface Props { current: number; last: number; base: string }
-const { current, last, base } = Astro.props;
+import { num, t, type Lang } from '../i18n';
+interface Props { lang: Lang; current: number; last: number; base: string }
+const { lang, current, last, base } = Astro.props;
+const L = t(lang);
 const href = (n: number) => (n === 1 ? base : `${base}${n}/`);
 ---
 {last > 1 && (
-  <nav class="pagination" aria-label="ترقيم الصفحات">
-    {current > 1 && <a href={href(current - 1)}>→ السابق</a>}
+  <nav class="pagination" aria-label={L.pagination}>
+    {current > 1 && <a href={href(current - 1)}>{L.prev}</a>}
     {Array.from({ length: last }, (_, i) => i + 1).map((n) =>
-      n === current ? <span class="current" aria-current="page">{toArabicDigits(n)}</span> : <a href={href(n)}>{toArabicDigits(n)}</a>
+      n === current ? <span class="current" aria-current="page">{num(lang, n)}</span> : <a href={href(n)}>{num(lang, n)}</a>
     )}
-    {current < last && <a href={href(current + 1)}>التالي ←</a>}
+    {current < last && <a href={href(current + 1)}>{L.next}</a>}
   </nav>
 )}

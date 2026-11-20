@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, url, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+---
+<Base lang={lang} title={L.search}>
+  <div class="container">
+    <header class="page-head"><h1>{L.searchTitle}</h1><p>{L.searchSub}</p></header>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <label for="q" class="sr-only">{L.search}</label>
+      <input id="q" type="search" placeholder={L.searchPh} autocomplete="off" autofocus />
+    </div>
+    <div class="search-results" id="results" aria-live="polite" data-lang={lang} data-index={url(lang, '/search.json')} data-empty={L.noResults}></div>
+  </div>
+</Base>
+<script>
+  type Item = { url: string; title: string; description: string; category: string; tags: string[]; body: string };
+  const input = document.getElementById('q') as HTMLInputElement;
+  const out = document.getElementById('results')!;
+  let index: Item[] = [];
+  // تطبيع النص: إزالة التشكيل وتوحيد الهمزات والتاء المربوطة والألف المقصورة
+  const norm = (s: string) => s.toLowerCase().replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  function run() {
+    const q = norm(input.value.trim());
+    const u = new URL(location.href);
+    input.value ? u.searchParams.set('q', input.value) : u.searchParams.delete('q');
+    history.replaceState(null, '', u);
+    if (!q) { out.innerHTML = ''; return; }
+    const words = q.split(/\s+/);
+    const hits = index
+      .map((it) => {
+        const ti = norm(it.title), d = norm(it.description), g = norm(it.tags.join(' ') + ' ' + it.category), b = norm(it.body);
+        let score = 0;
+        for (const w of words) {
+          if (!(ti + d + g + b).includes(w)) return { it, score: 0 };
+          score += (ti.includes(w) ? 10 : 0) + (g.includes(w) ? 5 : 0) + (d.includes(w) ? 3 : 0) + (b.includes(w) ? 1 : 0);
+        }
+        return { it, score };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+    out.innerHTML = hits.length
+      ? hits.map(({ it }) => `<a class="search-item" href="${it.url}"><span class="badge">${esc(it.category)}</span><h3>${esc(it.title)}</h3><p>${esc(it.description)}</p></a>`).join('')
+      : `<p class="empty">${out.dataset.empty}</p>`;
+  }
+  fetch(out.dataset.index!).then((r) => r.json()).then((d) => {
+    index = d;
+    const q = new URLSearchParams(location.search).get('q');
+    if (q) input.value = q;
+    run();
+  });
+  input.addEventListener('input', run);
+</script>

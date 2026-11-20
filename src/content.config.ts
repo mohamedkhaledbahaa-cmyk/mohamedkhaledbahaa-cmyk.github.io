@@ -8,6 +8,7 @@ const articles = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
+    lang: z.enum(['ar', 'en']).default('ar'),
     category: z.enum(['boq', 'estimation', 'proposals', 'epc']),
     tags: z.array(z.string()).default([]),
     cover: z.string().optional(),

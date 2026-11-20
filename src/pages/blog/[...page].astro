@@ -1,29 +1,9 @@
 ---
 import type { GetStaticPaths, Page } from 'astro';
-import Base from '../../layouts/Base.astro';
-import ArticleCard from '../../components/ArticleCard.astro';
-import Pagination from '../../components/Pagination.astro';
-import { CATEGORIES, SITE } from '../../config';
-import { getArticles, toArabicDigits, type Article } from '../../lib/utils';
-
-export const getStaticPaths = (async ({ paginate }) => {
-  const articles = await getArticles();
-  return paginate(articles, { pageSize: SITE.postsPerPage });
-}) satisfies GetStaticPaths;
-
+import BlogList from '../../views/BlogList.astro';
+import { SITE } from '../../config';
+import { getArticles, type Article } from '../../lib/utils';
+export const getStaticPaths = (async ({ paginate }) => paginate(await getArticles('ar'), { pageSize: SITE.postsPerPage })) satisfies GetStaticPaths;
 const { page } = Astro.props as { page: Page<Article> };
 ---
-<Base title={page.currentPage > 1 ? `المقالات — صفحة ${page.currentPage}` : 'كل المقالات'}>
-  <div class="container">
-    <header class="page-head">
-      <h1>كل المقالات</h1>
-      <p>{toArabicDigits(page.total)} مقالًا منشورًا</p>
-    </header>
-    <div class="chips" style="margin-bottom:32px">
-      <a class="chip active" href="/blog/">الكل</a>
-      {Object.entries(CATEGORIES).map(([k, v]) => <a class="chip" href={`/category/${k}/`}>{v}</a>)}
-    </div>
-    <div class="grid">{page.data.map((a) => <ArticleCard article={a} />)}</div>
-    <Pagination current={page.currentPage} last={page.lastPage} base="/blog/" />
-  </div>
-</Base>
+<BlogList lang="ar" page={page} />

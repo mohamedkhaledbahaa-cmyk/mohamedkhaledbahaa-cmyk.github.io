@@ -1,0 +1,26 @@
+---
+import type { Page } from 'astro';
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Pagination from '../components/Pagination.astro';
+import { CATEGORY_KEYS, num, t, url, type Lang } from '../i18n';
+import type { Article } from '../lib/utils';
+
+interface Props { lang: Lang; page: Page<Article> }
+const { lang, page } = Astro.props;
+const L = t(lang);
+---
+<Base lang={lang} title={page.currentPage > 1 ? `${L.allArticles} — ${L.page(num(lang, page.currentPage))}` : L.allArticles}>
+  <div class="container">
+    <header class="page-head">
+      <h1>{L.allArticles}</h1>
+      <p>{L.publishedCount(num(lang, page.total))}</p>
+    </header>
+    <div class="chips" style="margin-bottom:32px">
+      <a class="chip active" href={url(lang, '/blog/')}>{L.all}</a>
+      {CATEGORY_KEYS.map((k) => <a class="chip" href={url(lang, `/category/${k}/`)}>{L.categories[k]}</a>)}
+    </div>
+    <div class="grid">{page.data.map((a) => <ArticleCard article={a} />)}</div>
+    <Pagination lang={lang} current={page.currentPage} last={page.lastPage} base={url(lang, '/blog/')} />
+  </div>
+</Base>

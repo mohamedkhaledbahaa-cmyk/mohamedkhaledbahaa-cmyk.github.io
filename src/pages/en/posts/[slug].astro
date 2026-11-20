@@ -1,0 +1,9 @@
+---
+import Post from '../../../views/Post.astro';
+import { getArticles, slugOf } from '../../../lib/utils';
+export async function getStaticPaths() {
+  const all = await getArticles('en');
+  return all.map((article, i) => ({ params: { slug: slugOf(article) }, props: { article, newer: all[i - 1], older: all[i + 1], all } }));
+}
+---
+<Post {...Astro.props} />

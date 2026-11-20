@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+import { t, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+---
+<Base lang={lang} title={L.nav.about}>
+  <div class="container">
+    <header class="article-head">
+      <img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" />
+      <h1>{lang === 'ar' ? 'عن' : 'About'} <bdi>{SITE.title}</bdi></h1>
+      <p class="lead">{L.description}</p>
+    </header>
+    <div class="prose" style="max-width:var(--read);margin:0 auto">
+      {lang === 'ar' ? (
+        <>
+          <p><bdi>{SITE.title}</bdi> منصة متخصصة في الجانب الفني والتجاري لمشاريع الهندسة الكهربائية. هدفنا مساعدة المهندسين ومكاتب المقاولات على تسعير المناقصات بدقة، وإعداد عروض قوية تزيد فرص الترسية.</p>
+          <h2>ماذا نكتب؟</h2>
+          <ul>
+            <li><strong>تحليل جداول الكميات (BOQ):</strong> قراءة البنود، واكتشاف النواقص والتعارضات مع المخططات والمواصفات.</li>
+            <li><strong>تقدير التكاليف:</strong> تسعير المواد والعمالة والمعدات، والمصاريف غير المباشرة وهامش الربح.</li>
+            <li><strong>العروض الفنية والتجارية:</strong> بناء العرض، وجداول الامتثال، والاستيضاحات والتحفظات.</li>
+            <li><strong>مشاريع EPC:</strong> التصميم والتوريد والتنفيذ، وإدارة المخاطر والعقود.</li>
+          </ul>
+          <h2>تواصل معنا</h2>
+          <p>عندك سؤال أو موضوع تحب نكتب عنه؟ تواصل معنا عبر <a href={SITE.social.linkedin}>LinkedIn</a>.</p>
+        </>
+      ) : (
+        <>
+          <p><bdi>{SITE.title}</bdi> is a platform focused on the technical and commercial side of electrical engineering projects. Our goal is to help engineers and contractors price tenders accurately and build strong bids that win.</p>
+          <h2>What we write about</h2>
+          <ul>
+            <li><strong>BOQ Analysis:</strong> reading items and spotting gaps and conflicts with drawings and specifications.</li>
+            <li><strong>Cost Estimation:</strong> pricing materials, labour and equipment, overheads and margin.</li>
+            <li><strong>Technical & Commercial Proposals:</strong> structuring the bid, compliance statements, clarifications and deviations.</li>
+            <li><strong>EPC Projects:</strong> engineering, procurement and construction, risk and contract management.</li>
+          </ul>
+          <h2>Get in touch</h2>
+          <p>Have a question or a topic you'd like us to cover? Reach out on <a href={SITE.social.linkedin}>LinkedIn</a>.</p>
+        </>
+      )}
+    </div>
+  </div>
+</Base>

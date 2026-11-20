@@ -1,25 +1,4 @@
 ---
-import Base from '../layouts/Base.astro';
-import { SITE } from '../config';
+import About from '../views/About.astro';
 ---
-<Base title="عن الموقع">
-  <div class="container">
-    <header class="article-head">
-      <img class="hero-logo" src="/logo-320.png" alt={SITE.title} width="150" height="150" />
-      <h1>عن <bdi>{SITE.title}</bdi></h1>
-      <p class="lead">{SITE.description}</p>
-    </header>
-    <div class="prose" style="max-width:var(--read);margin:0 auto">
-      <p><bdi>{SITE.title}</bdi> منصة عربية متخصصة في الجانب الفني والتجاري لمشاريع الهندسة الكهربائية. هدفنا مساعدة المهندسين ومكاتب المقاولات على تسعير المناقصات بدقة، وإعداد عروض قوية تزيد فرص الترسية.</p>
-      <h2>ماذا نكتب؟</h2>
-      <ul>
-        <li><strong>تحليل جداول الكميات (BOQ):</strong> قراءة البنود، اكتشاف النواقص والتعارضات مع المخططات والمواصفات.</li>
-        <li><strong>تقدير التكاليف:</strong> تسعير المواد والعمالة والمعدات، والمصاريف غير المباشرة وهامش الربح.</li>
-        <li><strong>العروض الفنية والتجارية:</strong> بناء العرض، جداول الامتثال، والاستيضاحات والتحفظات.</li>
-        <li><strong>مشاريع EPC:</strong> التصميم والتوريد والتنفيذ، وإدارة المخاطر والعقود.</li>
-      </ul>
-      <h2>تواصل معنا</h2>
-      <p>عندك سؤال أو موضوع تحب نكتب عنه؟ تواصل معنا عبر <a href={SITE.social.linkedin}>LinkedIn</a>.</p>
-    </div>
-  </div>
-</Base>
+<About lang="ar" />

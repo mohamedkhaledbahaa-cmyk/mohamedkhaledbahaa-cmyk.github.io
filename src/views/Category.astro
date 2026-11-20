@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { CATEGORY_KEYS, num, t, url, type CategoryKey, type Lang } from '../i18n';
+import type { Article } from '../lib/utils';
+
+interface Props { lang: Lang; category: CategoryKey; articles: Article[] }
+const { lang, category, articles } = Astro.props;
+const L = t(lang);
+const name = L.categories[category];
+---
+<Base lang={lang} title={name} description={L.categoryDesc(name)}>
+  <div class="container">
+    <header class="page-head"><h1>{name}</h1><p>{L.inCategory(num(lang, articles.length))}</p></header>
+    <div class="chips" style="margin-bottom:32px">
+      <a class="chip" href={url(lang, '/blog/')}>{L.all}</a>
+      {CATEGORY_KEYS.map((k) => <a class:list={['chip', { active: k === category }]} href={url(lang, `/category/${k}/`)}>{L.categories[k]}</a>)}
+    </div>
+    {articles.length ? <div class="grid">{articles.map((a) => <ArticleCard article={a} />)}</div> : <p class="empty">{L.categoryEmpty}</p>}
+  </div>
+</Base>

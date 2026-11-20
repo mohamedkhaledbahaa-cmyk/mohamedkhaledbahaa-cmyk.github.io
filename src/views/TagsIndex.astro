@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { num, t, type Lang } from '../i18n';
+import { getArticles, tagUrl } from '../lib/utils';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+const map = new Map<string, number>();
+(await getArticles(lang)).flatMap((a) => a.data.tags).forEach((tag) => map.set(tag, (map.get(tag) ?? 0) + 1));
+const tags = [...map].sort((a, b) => b[1] - a[1]);
+---
+<Base lang={lang} title={L.tagsTitle}>
+  <div class="container">
+    <header class="page-head"><h1>{L.tagsTitle}</h1><p>{L.tagsSub}</p></header>
+    <div class="chips">{tags.map(([tag, n]) => <a class="chip" href={tagUrl(lang, tag)}># {tag}<small>({num(lang, n)})</small></a>)}</div>
+  </div>
+</Base>

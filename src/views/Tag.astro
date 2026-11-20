@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { num, t, url, type Lang } from '../i18n';
+import type { Article } from '../lib/utils';
+interface Props { lang: Lang; tag: string; articles: Article[] }
+const { lang, tag, articles } = Astro.props;
+const L = t(lang);
+---
+<Base lang={lang} title={L.tagTitle(tag)} altHref={url(lang === 'ar' ? 'en' : 'ar', '/tags/')}>
+  <div class="container">
+    <header class="page-head"><h1># {tag}</h1><p>{L.articlesCount(num(lang, articles.length))} · <a href={url(lang, '/tags/')} style="color:var(--accent)">{L.allTags}</a></p></header>
+    <div class="grid">{articles.map((a) => <ArticleCard article={a} />)}</div>
+  </div>
+</Base>

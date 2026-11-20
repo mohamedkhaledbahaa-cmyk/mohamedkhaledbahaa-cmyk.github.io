@@ -11,14 +11,16 @@ public_folder: /images/uploads
 
 collections:
   - name: articles
-    label: المقالات
+    label: المقالات (عربي)
     label_singular: مقال
     folder: src/content/articles
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{fields.slug}}"
     sortable_fields: ["date", "title"]
     summary: "{{title}} — {{date}}"
+    filter: { field: lang, value: ar }
     fields:
+      - { label: "lang", name: lang, widget: hidden, default: ar }
       - { label: "العنوان", name: title, widget: string }
       - { label: "رابط المقال بالإنجليزي (مثال: cable-sizing)", name: slug, widget: string, pattern: ["^[a-z0-9-]+$", "حروف إنجليزي صغيرة وأرقام وشرطة (-) فقط"] }
       - { label: "وصف مختصر", name: description, widget: text }
@@ -36,3 +38,30 @@ collections:
       - { label: "مقال مميز في الرئيسية؟", name: featured, widget: boolean, default: false, required: false }
       - { label: "مسودة (مخفي)؟", name: draft, widget: boolean, default: false, required: false }
       - { label: "المحتوى", name: body, widget: markdown }
+
+  - name: articles_en
+    label: English Articles
+    label_singular: Article
+    folder: src/content/articles/en
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: ["date", "title"]
+    summary: "{{title}} — {{date}}"
+    fields:
+      - { label: "lang", name: lang, widget: hidden, default: en }
+      - { label: "Title", name: title, widget: string }
+      - { label: "Short description", name: description, widget: text }
+      - { label: "Publish date", name: date, widget: datetime, format: "YYYY-MM-DD", time_format: false }
+      - label: "Category"
+        name: category
+        widget: select
+        options:
+          - { label: "BOQ Analysis", value: boq }
+          - { label: "Cost Estimation", value: estimation }
+          - { label: "Technical & Commercial Proposals", value: proposals }
+          - { label: "EPC Projects", value: epc }
+      - { label: "Tags", name: tags, widget: list, required: false }
+      - { label: "Cover image", name: cover, widget: image, required: false }
+      - { label: "Featured on home page?", name: featured, widget: boolean, default: false, required: false }
+      - { label: "Draft (hidden)?", name: draft, widget: boolean, default: false, required: false }
+      - { label: "Content", name: body, widget: markdown }

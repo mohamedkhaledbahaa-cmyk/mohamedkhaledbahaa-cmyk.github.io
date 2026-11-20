@@ -1,0 +1,11 @@
+---
+import Category from '../../../views/Category.astro';
+import { CATEGORY_KEYS, type CategoryKey } from '../../../i18n';
+import { getArticles } from '../../../lib/utils';
+export async function getStaticPaths() {
+  const articles = await getArticles('en');
+  return CATEGORY_KEYS.map((category) => ({ params: { category }, props: { articles: articles.filter((a) => a.data.category === category) } }));
+}
+const { category } = Astro.params as { category: CategoryKey };
+---
+<Category lang="en" category={category} articles={Astro.props.articles} />

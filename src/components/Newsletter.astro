@@ -1,12 +1,20 @@
 ---
 // اربط النموذج بخدمة نشرات بريدية (مثل Buttondown أو Mailchimp) عبر تغيير action
+import { t, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const L = t(Astro.props.lang);
 ---
 <section class="newsletter">
-  <h2>لا تفوّت أي مقال جديد</h2>
-  <p>اشترك في النشرة البريدية وتصلك أحدث المقالات مرة في الأسبوع.</p>
-  <form action="#" method="post" onsubmit="event.preventDefault(); this.innerHTML='<p>شكرًا لاشتراكك! ✦</p>'">
-    <label for="nl-email" class="sr-only">البريد الإلكتروني</label>
-    <input id="nl-email" type="email" name="email" placeholder="بريدك الإلكتروني" required dir="ltr" style="text-align:right" />
-    <button class="btn" type="submit">اشترك</button>
+  <h2>{L.nlTitle}</h2>
+  <p>{L.nlSub}</p>
+  <form action="#" method="post" data-thanks={L.nlThanks}>
+    <label for="nl-email" class="sr-only">{L.email}</label>
+    <input id="nl-email" type="email" name="email" placeholder={L.nlPh} required dir="ltr" />
+    <button class="btn" type="submit">{L.nlBtn}</button>
   </form>
 </section>
+<script>
+  document.querySelectorAll<HTMLFormElement>('.newsletter form').forEach((f) =>
+    f.addEventListener('submit', (e) => { e.preventDefault(); f.innerHTML = `<p>${f.dataset.thanks}</p>`; })
+  );
+</script>

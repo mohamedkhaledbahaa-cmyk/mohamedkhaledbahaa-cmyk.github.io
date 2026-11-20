@@ -1,15 +1,18 @@
 ---
 import { SITE } from '../config';
-import { toArabicDigits } from '../lib/utils';
+import { num, t, url, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
 ---
 <footer class="site-footer">
   <div class="container footer-grid">
-    <div>© {toArabicDigits(new Date().getFullYear())} <bdi>{SITE.title}</bdi> — جميع الحقوق محفوظة.</div>
+    <div>© {num(lang, new Date().getFullYear())} <bdi>{SITE.title}</bdi> — {L.rights}</div>
     <div class="footer-links">
-      <a href="/blog/">المقالات</a>
-      <a href="/about/">عن المدونة</a>
-      <a href="/rss.xml">RSS</a>
-      <a href={SITE.social.x} target="_blank" rel="noopener">X</a>
+      <a href={url(lang, '/blog/')}>{L.nav.articles}</a>
+      <a href={url(lang, '/pricing/')}>{L.nav.pricing}</a>
+      <a href={url(lang, '/about/')}>{L.nav.about}</a>
+      <a href={lang === 'ar' ? '/rss.xml' : '/en/rss.xml'}>RSS</a>
       <a href={SITE.social.linkedin} target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
