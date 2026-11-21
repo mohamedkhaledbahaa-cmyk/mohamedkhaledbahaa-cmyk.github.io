@@ -9,8 +9,9 @@ const home = url(lang, '/');
 const links = [
   { href: home, label: L.nav.home },
   { href: url(lang, '/blog/'), label: L.nav.articles },
-  { href: url(lang, '/pricing/'), label: L.nav.pricing },
-  { href: url(lang, '/cables/'), label: L.nav.cables },
+  { href: url(lang, '/pricing/'), label: L.navShort.pricing, icon: '⚡' },
+  { href: url(lang, '/cables/'), label: L.navShort.cables, icon: '🔌' },
+  { href: url(lang, '/lighting/'), label: L.navShort.lights, icon: '💡' },
   { href: url(lang, '/about/'), label: L.nav.about },
 ];
 const isActive = (href: string) => (href === home ? path === home || path === home.slice(0, -1) : path.startsWith(href));
@@ -19,7 +20,7 @@ const isActive = (href: string) => (href === home ? path === home || path === ho
   <nav class="container nav" aria-label={L.menu}>
     <a href={home} class="brand" dir="ltr"><img src="/logo-96.png" alt="" width="44" height="44" />{SITE.title}</a>
     <ul class="nav-links" id="nav-links">
-      {links.map((l) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+      {links.map((l: { href: string; label: string; icon?: string }) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.icon && <span class="nav-ico" aria-hidden="true">{l.icon}</span>}{l.label}</a></li>)}
     </ul>
     <div class="nav-actions">
       <a href={altHref} class="icon-btn lang-btn" aria-label={L.switchLangLabel} lang={lang === 'ar' ? 'en' : 'ar'}>{lang === 'ar' ? 'EN' : 'ع'}</a>

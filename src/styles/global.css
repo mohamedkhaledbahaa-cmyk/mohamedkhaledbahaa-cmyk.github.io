@@ -457,3 +457,18 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 .cb-market { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: linear-gradient(135deg, var(--accent-soft), var(--surface) 60%); }
 .cb-reset { display: none; margin-inline-start: 6px; border: 0; background: none; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; padding: 0; }
 .cb-edited .cb-reset { display: inline; }
+
+/* ===== Luminaire pricing ===== */
+.nav-ico { font-size: .85em; margin-inline-end: 4px; }
+.lx-line { position: relative; grid-template-columns: repeat(5, minmax(0, 1fr)); padding-inline-start: 46px; padding-inline-end: 54px; }
+.lx-line .cb-idx { position: absolute; inset-inline-start: 12px; top: 14px; }
+.lx-line .pr-x { position: absolute; inset-inline-end: 10px; top: 10px; }
+.lx-line .lx-ref { grid-column: span 3; }
+.lx-line .lx-type { grid-column: span 2; }
+@media (max-width: 760px) {
+  .lx-line { grid-template-columns: 1fr 1fr; padding: 44px 12px 12px; }
+  .lx-line .lx-ref, .lx-line .lx-type { grid-column: 1 / -1; }
+  .lx-line .cb-idx { top: 10px; } .lx-line .pr-x { grid-row: auto; }
+}
+.offer .o-scope { color: #444; font-size: 12px; margin: 12px 0; line-height: 1.6; }
+.offer .o-sign td { height: 70px; vertical-align: bottom; width: 33%; }

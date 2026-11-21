@@ -81,3 +81,13 @@ python3 tools/export_pricing.py "LV_Panel_Pricing_Database_v5.9.xlsx"
 ```bash
 python3 tools/export_cables.py "Cable_Pricing_DB_LME_2.xlsm"
 ```
+
+## تسعير الكشافات (`/lighting`)
+نسخة من شيت `Luminaire_Pricing_Tool`: السعر = وسيط (أو أقل/متوسط/أعلى) أسعار العروض المطابقة في النوع والطوارئ والبراند والديمر والوات (± السماحية) واللومن والكلفن والـ IP، ولو مفيش مطابق بيتقدّر من وسيط سعر الوات. عروض الدولار بتتحسب على سعر الدولار اليومي.
+- الحسابات: `src/lib/luminaires.ts` — الصفحة: `src/views/Luminaires.astro`
+- البيانات: `public/luminaires/data.json` (بدون موردين أو مشاريع أو أرقام عروض)
+
+**تحديث البيانات:**
+```bash
+python3 tools/export_luminaires.py "Luminaire_Pricing_Tool.xlsx"
+```

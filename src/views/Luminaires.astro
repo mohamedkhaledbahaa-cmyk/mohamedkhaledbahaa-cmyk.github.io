@@ -1,0 +1,245 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, type Lang } from '../i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+const ar = lang === 'ar';
+const S = ar ? {
+  title: 'تسعير الكشافات', lead: 'اكتب وصف الكشاف واختار النوع والبراند والمواصفات، وخد السعر المقترح والعرض الفني فورًا.',
+  market: 'سعر الدولار النهارده', usdRate: 'سعر الدولار (ج)', marketNote: 'بيتحدّث تلقائيًا كل يوم عمل، وعروض الدولار بتتحسب عليه. تقدر تغيّره بإيدك.',
+  settings: 'إعدادات التسعير', project: 'اسم المشروع', client: 'العميل', consultant: 'الاستشاري', tref: 'رقم المناقصة / BOQ', tol: 'سماحية الوات ± %', method: 'السعر المقترح =', tech: 'العرض الفني على أساس', adjfx: 'تعديل عروض الجنيه القديمة بفرق الدولار', yes: 'نعم', no: 'لا',
+  methods: { Min: 'أقل سعر', Average: 'المتوسط', Median: 'الوسيط (Median)', Max: 'أعلى سعر' }, techs: { 'Closest to suggested price': 'الأقرب للسعر المقترح', 'Lowest price': 'أقل سعر', 'Highest price': 'أعلى سعر' },
+  items: 'بنود الكشافات', ref: 'الوصف / رقم البند', type: 'نوع الكشاف', w: 'الوات', lm: 'اللومن (أقل حاجة)', cct: 'الكلفن (K)', ip: 'IP', em: 'طوارئ', dim: 'ديمر', brand: 'البراند', qty: 'الكمية', any: 'أي', anyBrand: 'أي براند',
+  dims: { Any: 'أي', Yes: 'نعم', 'Yes or on request': 'نعم أو عند الطلب', DALI: 'DALI' }, add: '+ إضافة كشاف', clear: 'مسح الكل', remove: 'حذف',
+  hint: 'السعر = الوسيط (أو الطريقة المختارة) لأسعار كل العروض المطابقة: نفس النوع والطوارئ والبراند والديمر، والوات في حدود السماحية، واللومن مش أقل، والكلفن متاح، والـ IP مساوي أو أعلى. لو مفيش عرض مطابق، بيتقدّر من وسيط سعر الوات × الوات المطلوب.',
+  result: 'النتيجة', excl: 'جنيه مصري — بدون ضريبة', total: 'الإجمالي', vat: 'شامل الضريبة 14%', usd: 'بالدولار (للمرجع)', status: 'الحالة', unit: 'سعر الوحدة', range: 'المدى',
+  matched: (n: number) => `✔ مطابق لـ ${n} عرض`, estimate: (n: number) => `≈ تقدير: وسيط سعر الوات من ${n} عرض`, none: '✖ مفيش بيانات – خفّف الـ IP أو الكلفن أو الديمر أو البراند أو السماحية',
+  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
+  disclaimer: 'الأسعار تقريبية (Budget) بدون ضريبة، مبنية على عروض موردين سابقة. راجع المورد قبل التعاقد.',
+} : {
+  title: 'Luminaire Pricing', lead: 'Describe the fixture, pick its type, brand and specs, and get a suggested price and a technical offer instantly.',
+  market: "Today's USD rate", usdRate: 'USD rate (EGP)', marketNote: 'Updated automatically every working day; USD offers are converted at this rate. You can edit it.',
+  settings: 'Pricing settings', project: 'Project', client: 'Client', consultant: 'Consultant', tref: 'Tender / BOQ ref.', tol: 'Watt tolerance ± %', method: 'Suggested price =', tech: 'Technical offer based on', adjfx: 'Adjust old EGP offers by FX change', yes: 'Yes', no: 'No',
+  methods: { Min: 'Min', Average: 'Average', Median: 'Median', Max: 'Max' }, techs: { 'Closest to suggested price': 'Closest to suggested price', 'Lowest price': 'Lowest price', 'Highest price': 'Highest price' },
+  items: 'Luminaire items', ref: 'Description / BOQ ref', type: 'Type', w: 'Watt', lm: 'Lumen (min)', cct: 'CCT (K)', ip: 'IP', em: 'Emergency', dim: 'Dimmable', brand: 'Brand', qty: 'Qty', any: 'Any', anyBrand: 'Any brand',
+  dims: { Any: 'Any', Yes: 'Yes', 'Yes or on request': 'Yes or on request', DALI: 'DALI' }, add: '+ Add luminaire', clear: 'Clear all', remove: 'Remove',
+  hint: 'Price = median (or the selected method) of all matching offers: same type, emergency, brand and dimming, watt within tolerance, lumen not lower, CCT available, IP equal or higher. With no match, it is estimated from the median EGP/W × the required watt.',
+  result: 'Result', excl: 'EGP — excl. VAT', total: 'Total', vat: 'Incl. 14% VAT', usd: 'In USD (reference)', status: 'Status', unit: 'Unit price', range: 'Range',
+  matched: (n: number) => `✔ Matched ${n} offer(s)`, estimate: (n: number) => `≈ Estimate: median EGP/W of ${n} offers`, none: '✖ No data – relax IP / CCT / dimming / brand / tolerance',
+  offerBtn: 'Show technical offer →', print: 'Print / save PDF', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
+  disclaimer: 'Budget prices excl. VAT based on past supplier quotations. Confirm with the supplier before ordering.',
+};
+const txt = { ...S, matched: undefined, estimate: undefined };
+---
+<Base lang={lang} title={L.nav.lights} description={S.lead}>
+  <div class="container pricing" id="lum" data-s={JSON.stringify(txt)} data-lang={lang}>
+    <header class="page-head no-print">
+      <span class="badge">💡 {L.nav.lights}</span>
+      <h1 style="margin-top:12px">{S.title}</h1>
+      <p>{S.lead}</p>
+      <p class="pr-db" id="lx-db">{S.loading}</p>
+    </header>
+
+    <div class="pr-layout no-print">
+      <form class="pr-form" id="lx-form" autocomplete="off" onsubmit="return false">
+        <section class="pr-card cb-market">
+          <h2><span class="pr-num">$</span>{S.market}</h2>
+          <div class="pr-grid"><label>{S.usdRate}<input name="usd" type="number" step="any" min="1" /></label></div>
+          <p class="pr-hint"><span id="lx-mdate"></span> {S.marketNote}</p>
+        </section>
+        <section class="pr-card">
+          <h2><span class="pr-num">1</span>{S.settings}</h2>
+          <div class="pr-grid">
+            <label>{S.project}<input name="project" /></label>
+            <label>{S.client}<input name="client" /></label>
+            <label>{S.consultant}<input name="consultant" /></label>
+            <label>{S.tref}<input name="tref" /></label>
+            <label>{S.tol}<input name="tol" type="number" step="any" min="0" value="20" /></label>
+            <label>{S.method}<select name="method">{Object.entries(S.methods).map(([k, v]) => <option value={k} selected={k === 'Median'}>{v}</option>)}</select></label>
+            <label>{S.tech}<select name="techBasis">{Object.entries(S.techs).map(([k, v]) => <option value={k}>{v}</option>)}</select></label>
+            <label>{S.adjfx}<select name="adjFx"><option value="yes">{S.yes}</option><option value="no">{S.no}</option></select></label>
+          </div>
+        </section>
+        <section class="pr-card">
+          <h2><span class="pr-num">2</span>{S.items}</h2>
+          <div class="cb-lines" id="lx-lines"></div>
+          <div class="pr-actions">
+            <button type="button" class="btn-ghost" id="lx-add">{S.add}</button>
+            <button type="button" class="btn-ghost" id="lx-clear">{S.clear}</button>
+          </div>
+          <p class="pr-hint">{S.hint}</p>
+        </section>
+      </form>
+
+      <aside class="pr-result" aria-live="polite">
+        <div class="pr-card pr-sticky">
+          <h2><span class="pr-num">3</span>{S.result}</h2>
+          <p class="pr-label">{S.total}</p>
+          <p class="pr-price"><span id="l-total">—</span> <small>{S.excl}</small></p>
+          <dl class="pr-dl">
+            <div><dt>{S.vat}</dt><dd id="l-vat">—</dd></div>
+            <div><dt>{S.usd}</dt><dd id="l-usd">—</dd></div>
+            <div><dt>{S.status}</dt><dd id="l-status">—</dd></div>
+          </dl>
+          <div class="cb-breakdown" id="l-lines"></div>
+          <button type="button" class="btn pr-offer-btn" id="lx-offer-btn">{S.offerBtn}</button>
+          <p class="pr-hint">{S.disclaimer}</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="pr-offer-wrap" id="lx-offer-wrap" hidden>
+      <div class="no-print" style="display:flex;justify-content:flex-end"><button type="button" class="btn" id="lx-print">🖨 {S.print}</button></div>
+      <article class="offer" id="lx-offer" dir="ltr" lang="en"></article>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { LumEstimator, LUM_SCOPE, type LumData, type LumLine } from '../lib/luminaires';
+
+  const root = document.getElementById('lum')!;
+  const S = JSON.parse(root.dataset.s!);
+  const ar = root.dataset.lang === 'ar';
+  const matched = (n: number) => (ar ? `✔ مطابق لـ ${n} عرض` : `✔ Matched ${n} offer(s)`);
+  const estimate = (n: number) => (ar ? `≈ تقدير: وسيط سعر الوات من ${n} عرض` : `≈ Estimate: median EGP/W of ${n} offers`);
+  const form = document.getElementById('lx-form') as HTMLFormElement;
+  const box = document.getElementById('lx-lines')!;
+  const $ = (id: string) => document.getElementById(id)!;
+  const fmt = (x: number | null | undefined, d = 0) => (x == null || !isFinite(x) ? '—' : x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const STORE = 'wt-lum-v1';
+  let est: LumEstimator | null = null;
+  let offerOpen = false;
+  let usdToday = 0;
+
+  const opts = (list: (string | number)[], sel: unknown, label = (v: string | number) => String(v)) =>
+    list.map((v) => `<option value="${esc(v)}"${String(v) === String(sel) ? ' selected' : ''}>${esc(label(v))}</option>`).join('');
+
+  function addLine(l: Partial<LumLine> = {}) {
+    const d = est!.d.lists;
+    const row = document.createElement('div');
+    row.className = 'cb-line lx-line';
+    row.innerHTML = `
+      <span class="cb-idx"></span>
+      <label class="lx-ref">${S.ref}<input data-f="ref" value="${esc(l.ref ?? '')}" /></label>
+      <label class="lx-type">${S.type}<select data-f="type">${opts(d.types, l.type ?? 'Downlight')}</select></label>
+      <label>${S.brand}<select data-f="brand"><option value="Any">${S.anyBrand}</option>${opts(est!.brands(), l.brand ?? 'Any')}</select></label>
+      <label>${S.w}<input data-f="w" type="number" min="0" step="any" value="${l.w ?? ''}" /></label>
+      <label>${S.lm}<input data-f="lm" type="number" min="0" step="any" value="${l.lm || ''}" placeholder="—" /></label>
+      <label>${S.cct}<select data-f="cct">${opts(d.cct, l.cct ?? 'Any', (v) => (v === 'Any' ? S.any : String(v)))}</select></label>
+      <label>${S.ip}<select data-f="ip"><option value="0">${S.any}</option>${opts(d.ip, l.ip ?? 0, (v) => `IP${v}`)}</select></label>
+      <label>${S.em}<select data-f="em">${opts(['No', 'Yes'], l.em ?? 'No', (v) => (v === 'Yes' ? S.yes : S.no))}</select></label>
+      <label>${S.dim}<select data-f="dim">${opts(d.dimming, l.dim ?? 'Any', (v) => S.dims[v] ?? v)}</select></label>
+      <label>${S.qty}<input data-f="qty" type="number" min="0" step="any" value="${l.qty ?? 1}" /></label>
+      <button type="button" class="pr-x" aria-label="${S.remove}">×</button>`;
+    row.querySelector('.pr-x')!.addEventListener('click', () => { row.remove(); renumber(); update(); });
+    box.appendChild(row);
+    renumber();
+  }
+  function renumber() { box.querySelectorAll('.cb-idx').forEach((s, i) => (s.textContent = String(i + 1))); }
+
+  function read() {
+    const f = new FormData(form);
+    const g = (k: string) => String(f.get(k) ?? '');
+    const lines: LumLine[] = [...box.querySelectorAll('.lx-line')].map((r) => {
+      const v = (k: string) => (r.querySelector(`[data-f=${k}]`) as HTMLInputElement).value;
+      return { ref: v('ref'), type: v('type'), w: +v('w') || 0, lm: +v('lm') || 0, cct: v('cct'), ip: +v('ip') || 0, em: v('em'), dim: v('dim'), brand: v('brand'), qty: +v('qty') || 0 };
+    });
+    return {
+      info: { project: g('project'), client: g('client'), consultant: g('consultant'), tref: g('tref') },
+      s: { usd: +g('usd') || usdToday, tol: (+g('tol') || 0) / 100, method: g('method'), adjFx: g('adjFx') !== 'no', techBasis: g('techBasis') },
+      lines,
+    };
+  }
+
+  function update() {
+    if (!est) return;
+    const inp = read();
+    try { localStorage.setItem(STORE, JSON.stringify(inp)); } catch {}
+    const res = inp.lines.map((l) => ({ l, r: est!.line(l, inp.s) }));
+    const total = res.reduce((a, x) => a + (x.r.total ?? 0), 0);
+    $('l-total').textContent = fmt(total);
+    $('l-vat').textContent = `${fmt(total * 1.14)} EGP`;
+    $('l-usd').textContent = `$ ${fmt(total / inp.s.usd)}`;
+    const c = (b: string) => res.filter((x) => x.r.basis === b).length;
+    $('l-status').textContent = `✔ ${c('matched')}  ·  ≈ ${c('estimate')}  ·  ✖ ${c('none')}`;
+    $('l-lines').innerHTML = res.map(({ l, r }, i) => {
+      const st = r.basis === 'matched' ? matched(r.n) : r.basis === 'estimate' ? `${estimate(r.perWCount)} × ${l.w} W` : S.none;
+      return `<div class="cb-res${r.basis === 'none' ? ' cb-miss' : ''}">
+        <div class="cb-res-h"><b>${i + 1}. ${esc(l.ref || l.type)}</b><span>${esc(l.type)}</span></div>
+        <div class="cb-res-g"><span>${S.unit}</span><b>${fmt(r.unit, 2)}</b><span>${S.total}</span><b>${fmt(r.total)}</b>${r.n ? `<span>${S.range}</span><b>${fmt(r.min)} – ${fmt(r.max)}</b>` : ''}</div>
+        <small class="${r.basis === 'estimate' ? 'cb-warn' : ''}">${esc(st)}</small></div>`;
+    }).join('');
+    if (offerOpen) renderOffer(inp, res);
+  }
+
+  function renderOffer(inp: ReturnType<typeof read>, res: { l: LumLine; r: ReturnType<LumEstimator['line']> }[]) {
+    const dash = (v: unknown) => (v === '' || v == null || v === 0 ? '—' : String(v));
+    const rows = res.map(({ l, r }, i) => {
+      const p = r.pick;
+      const cct = l.cct && l.cct !== 'Any' ? l.cct : p ? dash(p[7]) : '';
+      return `<tr><td>${i + 1}</td><td>${esc(l.ref || l.type)}</td><td class="o-num">${l.qty ? fmt(l.qty) : ''}</td><td><small>${esc(est!.requirement(l))}</small></td>
+        <td>${esc(p ? p[2] : '—')}</td><td>${esc(p ? p[4] : '')}</td><td class="o-desc">${esc(p ? p[1] || '—' : 'No matching offer in database – to be sourced')}</td>
+        <td class="o-num">${p ? dash(p[5]) : ''}</td><td class="o-num">${p ? (p[6] ? (p[12] === 'm' ? `${fmt(p[6])} /m` : fmt(p[6])) : '—') : ''}</td><td>${esc(cct)}</td>
+        <td>${p ? (p[9] ? `IP${p[9]}` : '—') : ''}</td><td>${p ? (p[10] === 'Yes' ? 'Yes – 3h' : 'No') : ''}</td><td>${esc(p ? p[11] || 'Not stated' : '')}</td><td>${esc(p ? dash(p[3]) : '')}</td></tr>`;
+    }).join('');
+    const today = new Date().toISOString().slice(0, 10);
+    const basis = { 'Closest to suggested price': 'closest to suggested price', 'Lowest price': 'lowest price', 'Highest price': 'highest price' }[inp.s.techBasis] ?? inp.s.techBasis;
+    $('lx-offer').innerHTML = `
+      <header class="o-top"><img src="/logo-96.png" alt="" width="64" height="64" />
+        <div><h2>PROPOSED TECHNICAL OFFER – LIGHTING FIXTURES</h2><p>Watt's Tender</p></div></header>
+      <table class="o-info">
+        <tr><th>Project</th><td>${esc(inp.info.project || '—')}</td><th>Client</th><td>${esc(inp.info.client || '—')}</td></tr>
+        <tr><th>Consultant</th><td>${esc(inp.info.consultant || '—')}</td><th>Tender / BOQ ref.</th><td>${esc(inp.info.tref || '—')}</td></tr>
+        <tr><th>Date</th><td>${today}</td><th>Basis of selection</th><td>Matching offer ${esc(basis)}</td></tr>
+      </table>
+      <p class="o-scope">${esc(LUM_SCOPE)}</p>
+      <div class="o-scroll"><table class="o-bom">
+        <thead><tr><th colspan="4">BOQ REQUIREMENT</th><th colspan="10">PROPOSED FIXTURE</th></tr>
+        <tr><th>#</th><th>BOQ Ref / Description</th><th>Qty</th><th>Requirement (Type · W · lm · CCT · IP · EM · Dim)</th><th>Brand</th><th>Model / Code</th><th>Description</th><th>Watt</th><th>Lumen (lm)</th><th>CCT (K)</th><th>IP</th><th>Emergency</th><th>Dimmable</th><th>Origin</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <h3>APPROVALS</h3>
+      <table class="o-info o-sign"><tr><th>Prepared by</th><th>Reviewed by</th><th>Approved by</th></tr>
+        <tr><td>Watt's Tender<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td></tr></table>`;
+  }
+
+  $('lx-add').addEventListener('click', () => { addLine(); update(); });
+  $('lx-clear').addEventListener('click', () => { box.innerHTML = ''; addLine(); update(); });
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  $('lx-offer-btn').addEventListener('click', () => {
+    offerOpen = true; ($('lx-offer-wrap') as HTMLElement).hidden = false; update();
+    $('lx-offer-wrap').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('lx-print').addEventListener('click', () => window.print());
+
+  Promise.all([
+    fetch('/luminaires/data.json').then((r) => r.json()),
+    fetch('/market.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => null),
+  ]).then(([d, mk]: [LumData, any]) => {
+    est = new LumEstimator(d);
+    usdToday = mk?.usd ? +mk.usd : d.meta.usd;
+    (form.elements.namedItem('usd') as HTMLInputElement).value = String(usdToday);
+    $('lx-mdate').textContent = ar ? `آخر تحديث: ${mk?.usdDate ?? '—'}.` : `Last update: ${mk?.usdDate ?? '—'}.`;
+    $('lx-db').textContent = ar ? `مبني على ${d.rows.length} عرض سعر من ${est.brands().length} براند — بدون أسماء موردين أو مشاريع` : `Based on ${d.rows.length} supplier quotations across ${est.brands().length} brands`;
+    let saved: any = null;
+    try { saved = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch {}
+    if (saved) {
+      for (const [k, v] of Object.entries({ ...saved.info, ...saved.s })) {
+        const el = form.elements.namedItem(k) as HTMLInputElement | null;
+        if (!el || k === 'usd') continue;
+        el.value = k === 'tol' ? String(Math.round(Number(v) * 10000) / 100) : k === 'adjFx' ? (v ? 'yes' : 'no') : String(v ?? '');
+      }
+      (saved.lines || []).forEach((l: LumLine) => addLine(l));
+    }
+    if (!box.children.length) [
+      { ref: 'Downlight recessed 8W', type: 'Downlight', w: 8, cct: '4000', ip: 54, qty: 200 },
+      { ref: 'Panel 60x60 40W', type: 'Panel 60x60', w: 40, cct: '4000', ip: 40, qty: 150 },
+      { ref: 'Street light 100W', type: 'Street Light', w: 100, cct: '4000', ip: 66, qty: 40 },
+    ].forEach((l) => addLine(l));
+    update();
+  }).catch((e) => { console.error(e); $('lx-db').textContent = S.err; });
+</script>
