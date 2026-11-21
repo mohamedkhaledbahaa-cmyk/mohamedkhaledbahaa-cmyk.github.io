@@ -1,20 +1,18 @@
 ---
-// اربط النموذج بخدمة نشرات بريدية (مثل Buttondown أو Mailchimp) عبر تغيير action
-import { t, type Lang } from '../i18n';
+// Call-to-action box. (The old newsletter form did not store emails, so it was replaced
+// until a real mailing service is connected — see README.)
+import { t, url, type Lang } from '../i18n';
 interface Props { lang: Lang }
-const L = t(Astro.props.lang);
+const { lang } = Astro.props;
+const L = t(lang);
+const ar = lang === 'ar';
 ---
 <section class="newsletter">
-  <h2>{L.nlTitle}</h2>
-  <p>{L.nlSub}</p>
-  <form action="#" method="post" data-thanks={L.nlThanks}>
-    <label for="nl-email" class="sr-only">{L.email}</label>
-    <input id="nl-email" type="email" name="email" placeholder={L.nlPh} required dir="ltr" />
-    <button class="btn" type="submit">{L.nlBtn}</button>
-  </form>
+  <h2>{ar ? 'جرّب أدوات التسعير مجانًا' : 'Try the pricing tools for free'}</h2>
+  <p>{ar ? 'سعر تقريبي وعرض فني جاهز للطباعة في ثواني — مبني على مئات عروض الأسعار الحقيقية.' : 'A budget price and a print-ready technical offer in seconds — built on hundreds of real supplier quotations.'}</p>
+  <div class="hero-cta" style="margin-top:0">
+    <a class="btn" href={url(lang, '/pricing/')}>⚡ {L.nav.pricing}</a>
+    <a class="btn btn-outline" href={url(lang, '/cables/')}>🔌 {L.nav.cables}</a>
+    <a class="btn btn-outline" href={url(lang, '/lighting/')}>💡 {L.nav.lights}</a>
+  </div>
 </section>
-<script>
-  document.querySelectorAll<HTMLFormElement>('.newsletter form').forEach((f) =>
-    f.addEventListener('submit', (e) => { e.preventDefault(); f.innerHTML = `<p>${f.dataset.thanks}</p>`; })
-  );
-</script>

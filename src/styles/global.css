@@ -481,3 +481,6 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 .series-box li::marker { color: var(--accent); font-weight: 700; }
 .series-box a:hover { color: var(--accent); }
 .series-box li.current span { font-weight: 700; color: var(--accent); }
+.offer-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
+.pr-offer-opts .offer-actions { justify-content: flex-start; }
+.pr-offer-opts .offer-actions .btn { margin-top: 0; }

@@ -21,7 +21,7 @@ const S = ar ? {
   details: 'تفاصيل الحساب', panelOnly: 'سعر اللوحة (بدون باور فاكتور)', pfcP: 'سعر الباور فاكتور', m1: 'طريقة 1: أقرب لوحات عند 3 موردين', m2: 'طريقة 2: النموذج الإحصائي',
   summary: 'ملخص', outsCount: 'إجمالي المخارج', formUsed: 'الـ Form المستخدم', brk: 'تكلفة القواطع (قائمة شنايدر 2026)', dims: 'الأبعاد المقترحة', dimsTitle: 'أبعاد اللوحة التقريبية', wL: 'العرض', hL: 'الارتفاع', dL: 'العمق', mm: 'مم', colsL: 'عدد الأعمدة', legend: 'F = مخارج  •  I = قاطع رئيسي  •  A = مخرج ACB  •  P = باور فاكتور', modeT: { FLOOR: 'لوحة أرضية', WALL: 'لوحة حائطية', PIL: 'بيلر خارجي' }, dbInfo: (p: string, o: string, d: string) => `مبني على ${p} لوحة من ${o} عرض سعر حقيقي — أسعار محدّثة لتاريخ ${d}`,
   offerBtn: 'اعرض العرض الفني ←', offer: 'العرض الفني المقترح', techBrand: 'ماركة المكونات', adv: 'خيارات إضافية', ka: 'قدرة القصر kA (فاضي = تلقائي)', formO: 'Form للعرض (فاضي = من التسعير)',
-  cable: 'دخول الكابلات', spd: 'إضافة SPD (حماية من الصواعق)؟', amb: 'درجة الحرارة المحيطة °C', print: 'طباعة / حفظ PDF', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
+  cable: 'دخول الكابلات', spd: 'إضافة SPD (حماية من الصواعق)؟', amb: 'درجة الحرارة المحيطة °C', print: 'طباعة / حفظ PDF', excel: 'تحميل Excel', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
   disclaimer: 'السعر تقريبي (Budget) مبني على عروض أسعار سابقة، والفرق بين الموردين لنفس اللوحة ممكن يوصل 30–60%. استخدمه كمرجع مبدئي.',
 } : {
   title: 'LV Panel Budget Estimator', lead: 'Enter the panel and breaker data to get an instant budget price and a proposed technical offer.',
@@ -36,7 +36,7 @@ const S = ar ? {
   details: 'Calculation details', panelOnly: 'Panel price (excl. PFC)', pfcP: 'PFC price', m1: 'Method 1: closest panels from 3 suppliers', m2: 'Method 2: statistical model',
   summary: 'Summary', outsCount: 'Total outgoings', formUsed: 'Form used', brk: 'Breakers cost (Schneider PL 2026)', dims: 'Proposed dimensions', dimsTitle: 'Approximate panel dimensions', wL: 'Width', hL: 'Height', dL: 'Depth', mm: 'mm', colsL: 'Columns', legend: 'F = feeders  •  I = incomer  •  A = ACB outgoing  •  P = PFC', modeT: { FLOOR: 'Floor-standing', WALL: 'Wall-mounted', PIL: 'Outdoor pillar' }, dbInfo: (p: string, o: string, d: string) => `Based on ${p} panels from ${o} real supplier offers — prices updated to ${d}`,
   offerBtn: 'Show technical offer →', offer: 'Proposed technical offer', techBrand: 'Components brand', adv: 'More options', ka: 'Short-circuit kA (blank = auto)', formO: 'Offer form (blank = from estimator)',
-  cable: 'Cable entry', spd: 'Add surge protection (SPD)?', amb: 'Ambient temperature °C', print: 'Print / save PDF', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
+  cable: 'Cable entry', spd: 'Add surge protection (SPD)?', amb: 'Ambient temperature °C', print: 'Print / save PDF', excel: 'Download Excel', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
   disclaimer: 'Budget price based on past supplier offers; the same panel can differ 30–60% between suppliers. Use it as a first reference.',
 };
 const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 'PFC', 'ATS', 'PILLAR', 'COFFREE', 'LCP'];
@@ -157,7 +157,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
           <label>{S.formO}<select name="formOverride" form="pr-form"><option value="">—</option>{FORMS.slice(1).map((c) => <option>{c}</option>)}</select></label>
           <label>{S.amb}<input name="ambient" type="number" step="any" value="40" form="pr-form" /></label>
         </div>
-        <button type="button" class="btn" id="pr-print">🖨 {S.print}</button>
+        <div class="offer-actions"><button type="button" class="btn" id="pr-print">🖨 {S.print}</button><button type="button" class="btn btn-outline" id="pr-xlsx">⬇ {S.excel}</button></div>
       </div>
       <article class="offer" id="pr-offer" dir="ltr" lang="en"></article>
     </section>
@@ -166,6 +166,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
 
 <script>
   import { Estimator, NOTES, type Data, type Input } from '../lib/pricing';
+  import { downloadXlsx } from '../lib/excel';
 
   const root = document.getElementById('pricing')!;
   const S = JSON.parse(root.dataset.s!);
@@ -323,6 +324,23 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
     $('pr-offer-wrap').scrollIntoView({ behavior: 'smooth' });
   });
   $('pr-print').addEventListener('click', () => window.print());
+  $('pr-xlsx').addEventListener('click', () => {
+    if (!est) return;
+    const inp = readInput(), r = est.calc(inp), o = est.offer(inp, r);
+    const sum: (string | number)[][] = [
+      ["Watt's Tender — LV Panel Budget Estimate"], [],
+      ['Project', inp.project], ['Panel', inp.panel], ['Panel type', o.typeText], ['Main breaker', `${inp.mainType} ${inp.mainA} A ${inp.mainPoles}P × ${inp.incomers}`],
+      ['IP', inp.ip === '' ? '' : `IP${inp.ip}`], ['Quantity', inp.qty], [],
+      ['Suggested price / panel (EGP excl. VAT)', Math.round(r.price)], ['Low', Math.round(r.low)], ['High', Math.round(r.high)],
+      ['Total for quantity', Math.round(r.qtyTotal)], ['USD (reference)', Math.round(r.usd)], ['Confidence', r.confidence], ['Similarity', `${Math.round(r.similarity * 100)}%`],
+      ['Dimensions', r.dims.text], ['Arrangement', r.dims.mount], ['Form', r.form], [],
+      ['Outgoing breakers'], ['Type', 'Rating', 'Poles', 'Qty'], ...inp.lines.filter((l) => l.type).map((l) => [l.type, l.a, l.poles, l.qty]),
+    ];
+    const bom: (string | number)[][] = [['Item', 'Qty', 'Description', 'Rating', 'Poles', 'Icu', 'Brand', 'Typical ref.', 'Unit list EGP', 'Total list EGP'],
+      ...o.items.map((it) => it.head ? ['', '', it.head] : [it.no ?? '', it.qty ?? '', it.desc, it.rating ?? '', it.poles ?? '', it.icu ?? '', it.brand ?? '', it.ref ?? '', it.unit ?? '', it.total ?? ''])];
+    const spec = o.general.map(([k, v]) => [k, v]);
+    downloadXlsx(`${inp.panel || 'panel'} - estimate.xlsx`, [{ name: 'Estimate', rows: sum }, { name: 'Technical offer', rows: [...spec, [], ...bom] }]);
+  });
 
   if (!restore()) {
     [{ type: 'MCCB', a: 630, qty: 2 }, { type: 'MCCB', a: 400, qty: 2 }, { type: 'MCCB', a: 250, qty: 4 }, { type: 'MCCB', a: 160, qty: 2 }].forEach((l) => addLine({ ...l, poles: 3 }));

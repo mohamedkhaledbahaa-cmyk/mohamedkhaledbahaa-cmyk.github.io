@@ -15,7 +15,7 @@ const S = ar ? {
   result: 'النتيجة', perM: 'ج/م', basis: 'سعر الأساس', cost: 'التكلفة بالهالك', sell: 'سعر البيع', total: 'الإجمالي',
   sumCost: 'إجمالي التكلفة', sumSell: 'إجمالي البيع', sumMargin: 'الربح', sumVat: 'الإجمالي شامل الضريبة', usd: 'بالدولار (للمرجع)', excl: 'جنيه مصري — بدون ضريبة',
   src: { supplier: (n: number) => `متوسط ${n} سعر من المورد`, fallback: (n: number) => `بديل: متوسط ${n} سعر من كل الموردين`, all: (n: number) => `متوسط ${n} سعر من كل الموردين`, none: 'مش موجود في قاعدة البيانات', manual: 'سعر يدوي' },
-  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
+  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', excel: 'تحميل Excel', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
   disclaimer: 'الأسعار تقريبية (Budget) ومحدّثة على أسعار النحاس والألومنيوم والدولار المكتوبة فوق. راجع المورد قبل التعاقد.',
 } : {
   title: 'Cable Pricing', lead: 'Pick the cable type, size, voltage and supplier to get a suggested price and a technical offer instantly.',
@@ -26,7 +26,7 @@ const S = ar ? {
   result: 'Result', perM: 'EGP/m', basis: 'Basis', cost: 'Cost incl. wastage', sell: 'Sell', total: 'Total',
   sumCost: 'Total cost', sumSell: 'Total sell', sumMargin: 'Margin', sumVat: 'Total incl. VAT', usd: 'In USD (reference)', excl: 'EGP — excl. VAT',
   src: { supplier: (n: number) => `Avg of ${n} supplier prices`, fallback: (n: number) => `Fallback: avg of ${n} prices, all suppliers`, all: (n: number) => `Avg of ${n} prices, all suppliers`, none: 'Not in database', manual: 'Manual rate' },
-  offerBtn: 'Show technical offer →', print: 'Print / save PDF', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
+  offerBtn: 'Show technical offer →', print: 'Print / save PDF', excel: 'Download Excel', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
   disclaimer: 'Budget prices indexed to the copper, aluminium and USD rates shown above. Confirm with the supplier before ordering.',
 };
 const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
@@ -92,7 +92,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     </div>
 
     <section class="pr-offer-wrap" id="cb-offer-wrap" hidden>
-      <div class="no-print" style="display:flex;justify-content:flex-end"><button type="button" class="btn" id="cb-print">🖨 {S.print}</button></div>
+      <div class="no-print offer-actions"><button type="button" class="btn" id="cb-print">🖨 {S.print}</button><button type="button" class="btn btn-outline" id="cb-xlsx">⬇ {S.excel}</button></div>
       <article class="offer" id="cb-offer" dir="ltr" lang="en"></article>
     </section>
   </div>
@@ -100,6 +100,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
 
 <script>
   import { CableEstimator, CABLE_NOTES, type CableData, type CableLine, type Market } from '../lib/cables';
+  import { downloadXlsx } from '../lib/excel';
 
   const root = document.getElementById('cables')!;
   const S = JSON.parse(root.dataset.s!);
@@ -229,6 +230,20 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     $('cb-offer-wrap').scrollIntoView({ behavior: 'smooth' });
   });
   $('cb-print').addEventListener('click', () => window.print());
+  $('cb-xlsx').addEventListener('click', () => {
+    if (!est) return;
+    const inp = read(), r = est.price(inp.lines, inp.settings), m = est.market;
+    const rows: (string | number)[][] = [
+      ["Watt's Tender — Cable Pricing"], ['Project', inp.project], ['Supplier', inp.settings.brand === 'all' ? 'Average of all suppliers' : inp.settings.brand],
+      ['LME Cu ($/t)', m.cu], ['LME Al ($/t)', m.al], ['USD (EGP)', m.usd], ['Wastage', inp.settings.wastage], ['Margin', inp.settings.margin], [],
+      ['#', 'Cable type', 'Size', 'Voltage', 'Qty (m)', 'Basis EGP/m', 'Cost EGP/m', 'Sell EGP/m', 'Total EGP', 'Price basis'],
+      ...r.lines.map((x, i) => [i + 1, x.line.type, x.line.size, x.line.voltage, x.line.qty, x.base ?? '', x.cost ?? '', x.sell ?? '', x.total ?? '', x.line.override ? 'Manual' : x.mode === 'none' ? 'Not in DB' : `${x.mode} (${x.n})`]),
+      [], ['', '', '', '', '', '', '', 'Total cost', r.cost], ['', '', '', '', '', '', '', 'Total sell', r.sell], ['', '', '', '', '', '', '', 'Incl. VAT', r.incVat],
+    ];
+    const tech: (string | number)[][] = [['#', 'Designation', 'Construction', 'Standards', 'Voltage', 'Max temp', 'Rdc 20°C Ω/km', 'I ground A', 'I duct A', 'I air A', 'OD mm', 'Weight kg/km', 'Qty m', 'Source'],
+      ...inp.lines.filter((l) => l.type && l.size).map((l, i) => { const t = est!.tech(l); return [i + 1, t.designation, t.construction, t.standards, t.voltage, t.temp, t.rdc || '', t.ig || '', t.id || '', t.ia || '', t.od || '', t.w || '', l.qty, t.source]; })];
+    downloadXlsx(`${inp.project || 'cables'} - cable pricing.xlsx`, [{ name: 'Pricing', rows }, { name: 'Technical offer', rows: tech }]);
+  });
 
   $('cb-reset').addEventListener('click', () => { if (today) { setMarketInputs(today); update(); } });
   Promise.all([

@@ -16,7 +16,7 @@ const S = ar ? {
   hint: 'السعر = الوسيط (أو الطريقة المختارة) لأسعار كل العروض المطابقة: نفس النوع والطوارئ والبراند والديمر، والوات في حدود السماحية، واللومن مش أقل، والكلفن متاح، والـ IP مساوي أو أعلى. لو مفيش عرض مطابق، بيتقدّر من وسيط سعر الوات × الوات المطلوب.',
   result: 'النتيجة', excl: 'جنيه مصري — بدون ضريبة', total: 'الإجمالي', vat: 'شامل الضريبة 14%', usd: 'بالدولار (للمرجع)', status: 'الحالة', unit: 'سعر الوحدة', range: 'المدى',
   matched: (n: number) => `✔ مطابق لـ ${n} عرض`, estimate: (n: number) => `≈ تقدير: وسيط سعر الوات من ${n} عرض`, none: '✖ مفيش بيانات – خفّف الـ IP أو الكلفن أو الديمر أو البراند أو السماحية',
-  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
+  offerBtn: 'اعرض العرض الفني ←', print: 'طباعة / حفظ PDF', excel: 'تحميل Excel', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
   disclaimer: 'الأسعار تقريبية (Budget) بدون ضريبة، مبنية على عروض موردين سابقة. راجع المورد قبل التعاقد.',
 } : {
   title: 'Luminaire Pricing', lead: 'Describe the fixture, pick its type, brand and specs, and get a suggested price and a technical offer instantly.',
@@ -28,7 +28,7 @@ const S = ar ? {
   hint: 'Price = median (or the selected method) of all matching offers: same type, emergency, brand and dimming, watt within tolerance, lumen not lower, CCT available, IP equal or higher. With no match, it is estimated from the median EGP/W × the required watt.',
   result: 'Result', excl: 'EGP — excl. VAT', total: 'Total', vat: 'Incl. 14% VAT', usd: 'In USD (reference)', status: 'Status', unit: 'Unit price', range: 'Range',
   matched: (n: number) => `✔ Matched ${n} offer(s)`, estimate: (n: number) => `≈ Estimate: median EGP/W of ${n} offers`, none: '✖ No data – relax IP / CCT / dimming / brand / tolerance',
-  offerBtn: 'Show technical offer →', print: 'Print / save PDF', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
+  offerBtn: 'Show technical offer →', print: 'Print / save PDF', excel: 'Download Excel', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
   disclaimer: 'Budget prices excl. VAT based on past supplier quotations. Confirm with the supplier before ordering.',
 };
 const txt = { ...S, matched: undefined, estimate: undefined };
@@ -91,7 +91,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
     </div>
 
     <section class="pr-offer-wrap" id="lx-offer-wrap" hidden>
-      <div class="no-print" style="display:flex;justify-content:flex-end"><button type="button" class="btn" id="lx-print">🖨 {S.print}</button></div>
+      <div class="no-print offer-actions"><button type="button" class="btn" id="lx-print">🖨 {S.print}</button><button type="button" class="btn btn-outline" id="lx-xlsx">⬇ {S.excel}</button></div>
       <article class="offer" id="lx-offer" dir="ltr" lang="en"></article>
     </section>
   </div>
@@ -99,6 +99,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
 
 <script>
   import { LumEstimator, LUM_SCOPE, type LumData, type LumLine } from '../lib/luminaires';
+  import { downloadXlsx } from '../lib/excel';
 
   const root = document.getElementById('lum')!;
   const S = JSON.parse(root.dataset.s!);
@@ -215,6 +216,22 @@ const txt = { ...S, matched: undefined, estimate: undefined };
     $('lx-offer-wrap').scrollIntoView({ behavior: 'smooth' });
   });
   $('lx-print').addEventListener('click', () => window.print());
+  $('lx-xlsx').addEventListener('click', () => {
+    if (!est) return;
+    const inp = read();
+    const res = inp.lines.map((l) => ({ l, r: est!.line(l, inp.s) }));
+    const total = res.reduce((a, x) => a + (x.r.total ?? 0), 0);
+    const rows: (string | number)[][] = [
+      ["Watt's Tender — Luminaire Pricing"], ['Project', inp.info.project], ['Client', inp.info.client], ['Consultant', inp.info.consultant], ['Tender ref.', inp.info.tref],
+      ['USD (EGP)', inp.s.usd], ['Method', inp.s.method], ['Watt tolerance', inp.s.tol], [],
+      ['#', 'Description', 'Type', 'Brand', 'W', 'lm', 'CCT', 'IP', 'Emergency', 'Dimmable', 'Qty', 'Unit EGP', 'Total EGP', 'Min', 'Average', 'Max', 'Basis'],
+      ...res.map(({ l, r }, i) => [i + 1, l.ref, l.type, l.brand, l.w || '', l.lm || '', l.cct, l.ip || '', l.em, l.dim, l.qty, r.unit ?? '', r.total ?? '', r.min ?? '', r.avg ?? '', r.max ?? '', r.basis === 'matched' ? `Matched ${r.n}` : r.basis]),
+      [], ['', '', '', '', '', '', '', '', '', '', '', 'Total', total], ['', '', '', '', '', '', '', '', '', '', '', 'Incl. 14% VAT', total * 1.14],
+    ];
+    const tech: (string | number)[][] = [['#', 'BOQ ref', 'Qty', 'Requirement', 'Brand', 'Model / code', 'Description', 'W', 'lm', 'CCT', 'IP', 'Emergency', 'Dimmable', 'Origin'],
+      ...res.map(({ l, r }, i) => { const p = r.pick; return [i + 1, l.ref || l.type, l.qty, est!.requirement(l), p?.[2] ?? '—', p?.[4] ?? '', p ? p[1] : 'No matching offer – to be sourced', p?.[5] ?? '', p?.[6] || '', l.cct !== 'Any' ? l.cct : p?.[7] ?? '', p?.[9] ? `IP${p[9]}` : '', p ? (p[10] === 'Yes' ? 'Yes – 3h' : 'No') : '', p?.[11] ?? '', p?.[3] ?? '']; })];
+    downloadXlsx(`${inp.info.project || 'lighting'} - luminaire pricing.xlsx`, [{ name: 'Pricing', rows }, { name: 'Technical offer', rows: tech }]);
+  });
 
   Promise.all([
     fetch('/luminaires/data.json').then((r) => r.json()),
