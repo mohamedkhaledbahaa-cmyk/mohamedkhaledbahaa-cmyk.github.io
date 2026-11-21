@@ -6,7 +6,7 @@ lang: en
 category: boq
 tags: ["BOQ", "Tendering", "Technical Review"]
 cover: /images/boq.svg
-featured: true
+featured: false
 ---
 
 The Bill of Quantities is the foundation of every bid. Any mistake in it turns into a direct loss after award, so reviewing it before pricing isn't optional.

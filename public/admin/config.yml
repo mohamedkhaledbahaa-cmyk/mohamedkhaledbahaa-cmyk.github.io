@@ -29,6 +29,7 @@ collections:
         name: category
         widget: select
         options:
+          - { label: "إدارة المناقصات", value: tendering }
           - { label: "تحليل جداول الكميات", value: boq }
           - { label: "تقدير التكاليف", value: estimation }
           - { label: "العروض الفنية والتجارية", value: proposals }
@@ -56,6 +57,7 @@ collections:
         name: category
         widget: select
         options:
+          - { label: "Tender Management", value: tendering }
           - { label: "BOQ Analysis", value: boq }
           - { label: "Cost Estimation", value: estimation }
           - { label: "Technical & Commercial Proposals", value: proposals }

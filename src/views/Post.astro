@@ -14,6 +14,7 @@ const author = article.data.author ?? L.author;
 const { Content, headings } = await render(article);
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const series = article.data.series ? all.filter((a) => a.data.series === article.data.series).sort((a, b) => (a.data.part ?? 0) - (b.data.part ?? 0)) : [];
 const enc = encodeURIComponent;
 const related = all
   .filter((a) => a.id !== article.id)
@@ -39,6 +40,13 @@ const related = all
     </header>
 
     {cover && <figure class="article-cover"><img src={cover} alt={coverAlt ?? title} /></figure>}
+
+    {series.length > 1 && (
+      <nav class="series-box" aria-label={L.seriesLabel}>
+        <p><span>📚 {L.seriesLabel}:</span> <b>{article.data.series}</b> · {L.partOf(String(article.data.part ?? ''), String(series.length))}</p>
+        <ol>{series.map((a) => <li class:list={{ current: a.id === article.id }}>{a.id === article.id ? <span>{a.data.title}</span> : <a href={postUrl(a)}>{a.data.title}</a>}</li>)}</ol>
+      </nav>
+    )}
 
     <div class="article-layout">
       <div class="prose" id="prose"><Content /></div>

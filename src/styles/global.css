@@ -472,3 +472,12 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 }
 .offer .o-scope { color: #444; font-size: 12px; margin: 12px 0; line-height: 1.6; }
 .offer .o-sign td { height: 70px; vertical-align: bottom; width: 33%; }
+
+/* Series box */
+.series-box { max-width: var(--read); margin: 0 auto 36px; padding: 18px 22px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); border-inline-start: 4px solid var(--accent); }
+.series-box p { margin: 0 0 10px; font-size: .95rem; color: var(--muted); }
+.series-box p b { color: var(--text); }
+.series-box ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; font-size: .95rem; }
+.series-box li::marker { color: var(--accent); font-weight: 700; }
+.series-box a:hover { color: var(--accent); }
+.series-box li.current span { font-weight: 700; color: var(--accent); }

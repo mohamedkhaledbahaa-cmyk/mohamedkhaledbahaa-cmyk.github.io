@@ -6,7 +6,7 @@ date: 2026-11-18
 category: boq
 tags: ["BOQ", "مناقصات", "مراجعة فنية"]
 cover: /images/boq.svg
-featured: true
+featured: false
 ---
 
 جدول الكميات (Bill of Quantities) هو أساس أي عرض سعر. أي خطأ فيه بيتحول لخسارة مباشرة بعد الترسية، علشان كده المراجعة قبل التسعير مش رفاهية.
