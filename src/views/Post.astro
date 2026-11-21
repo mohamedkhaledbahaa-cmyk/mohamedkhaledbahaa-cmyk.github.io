@@ -39,7 +39,7 @@ const related = all
       </div>
     </header>
 
-    {cover && <figure class="article-cover"><img src={cover} alt={coverAlt ?? title} /></figure>}
+    {cover && <figure class="article-cover"><img src={cover} alt={coverAlt ?? title} width="1600" height="900" fetchpriority="high" /></figure>}
 
     {series.length > 1 && (
       <nav class="series-box" aria-label={L.seriesLabel}>

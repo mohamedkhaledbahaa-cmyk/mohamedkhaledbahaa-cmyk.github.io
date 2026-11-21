@@ -18,7 +18,7 @@ const isActive = (href: string) => (href === home ? path === home || path === ho
 ---
 <header class="site-header">
   <nav class="container nav" aria-label={L.menu}>
-    <a href={home} class="brand" dir="ltr"><img src="/logo-96.png" alt="" width="44" height="44" />{SITE.title}</a>
+    <a href={home} class="brand" dir="ltr"><img src="/logo-96.webp" alt="" width="44" height="44" />{SITE.title}</a>
     <ul class="nav-links" id="nav-links">
       {links.map((l: { href: string; label: string; icon?: string }) => <li><a href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.icon && <span class="nav-ico" aria-hidden="true">{l.icon}</span>}{l.label}</a></li>)}
     </ul>

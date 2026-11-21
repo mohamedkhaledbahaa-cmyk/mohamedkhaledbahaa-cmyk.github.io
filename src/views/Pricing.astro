@@ -289,7 +289,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
       : `<tr><td>${it.no}</td><td>${esc(it.qty)}</td><td class="o-desc">${esc(it.desc)}</td><td>${esc(it.rating)}</td><td>${esc(it.poles)}</td><td>${esc(it.icu)}</td><td>${esc(it.brand)}</td><td>${esc(it.ref)}</td>${schneider ? `<td class="o-num">${typeof it.unit === 'number' ? fmt(it.unit) : ''}</td><td class="o-num">${typeof it.total === 'number' ? fmt(it.total) : ''}</td>` : ''}</tr>`).join('');
     $('pr-offer').innerHTML = `
       <header class="o-top">
-        <img src="/logo-96.png" alt="" width="64" height="64" />
+        <img src="/logo-96.webp" alt="" width="64" height="64" />
         <div><h2>PROPOSED TECHNICAL OFFER – LV PANEL</h2><p>Components: ${esc(inp.techBrand)} • ${esc(o.enclosure)}</p></div>
       </header>
       <table class="o-info">

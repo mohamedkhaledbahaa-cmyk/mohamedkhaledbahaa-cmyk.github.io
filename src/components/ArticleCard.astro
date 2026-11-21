@@ -12,7 +12,7 @@ const mins = L.reading(readingTime(article.body));
 ---
 {featured ? (
   <article class="featured">
-    {cover && <a href={href} class="card-cover"><img src={cover} alt={coverAlt ?? title} loading="eager" /></a>}
+    {cover && <a href={href} class="card-cover"><img src={cover} alt={coverAlt ?? title} loading="eager" fetchpriority="high" width="1600" height="900" /></a>}
     <div class="featured-body">
       <a href={catHref} class="badge">{L.categories[category]}</a>
       <h2><a href={href}>{title}</a></h2>
@@ -23,7 +23,7 @@ const mins = L.reading(readingTime(article.body));
   </article>
 ) : (
   <article class="card">
-    {cover && <a href={href} class="card-cover" tabindex="-1" aria-hidden="true"><img src={cover} alt="" loading="lazy" /></a>}
+    {cover && <a href={href} class="card-cover" tabindex="-1" aria-hidden="true"><img src={cover} alt="" loading="lazy" decoding="async" width="1600" height="900" /></a>}
     <div class="card-body">
       <a href={catHref} class="badge">{L.categories[category]}</a>
       <h3><a href={href}>{title}</a></h3>

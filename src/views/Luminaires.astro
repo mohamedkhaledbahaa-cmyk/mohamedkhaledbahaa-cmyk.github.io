@@ -190,7 +190,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
     const today = new Date().toISOString().slice(0, 10);
     const basis = { 'Closest to suggested price': 'closest to suggested price', 'Lowest price': 'lowest price', 'Highest price': 'highest price' }[inp.s.techBasis] ?? inp.s.techBasis;
     $('lx-offer').innerHTML = `
-      <header class="o-top"><img src="/logo-96.png" alt="" width="64" height="64" />
+      <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" />
         <div><h2>PROPOSED TECHNICAL OFFER – LIGHTING FIXTURES</h2><p>Watt's Tender</p></div></header>
       <table class="o-info">
         <tr><th>Project</th><td>${esc(inp.info.project || '—')}</td><th>Client</th><td>${esc(inp.info.client || '—')}</td></tr>

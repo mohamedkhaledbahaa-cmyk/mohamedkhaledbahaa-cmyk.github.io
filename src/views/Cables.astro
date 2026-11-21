@@ -206,7 +206,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
         <td class="o-num">${z(t.od)}</td><td class="o-num">${z(t.w)}</td><td class="o-num">${fmt(l.qty)}</td><td><small>${esc(t.source)}</small></td></tr>`;
     }).join('');
     $('cb-offer').innerHTML = `
-      <header class="o-top"><img src="/logo-96.png" alt="" width="64" height="64" />
+      <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" />
         <div><h2>TECHNICAL OFFER – POWER CABLES</h2><p>Indexed to LME Cu ${fmt(est!.market.cu)} $/t • Al ${fmt(est!.market.al)} $/t • USD ${est!.market.usd} EGP</p></div></header>
       <table class="o-info">
         <tr><th>Project</th><td>${esc(inp.project)}</td><th>Date</th><td>${new Date().toISOString().slice(0, 10)}</td></tr>
