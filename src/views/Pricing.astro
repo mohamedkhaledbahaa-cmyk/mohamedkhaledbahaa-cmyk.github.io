@@ -1,4 +1,6 @@
 ---
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
 import { t, type Lang } from '../i18n';
 import { OUT_TYPES, MAIN_TYPES, IPS, BRANDS, TECH_BRANDS, FORMS } from '../lib/pricing';
@@ -6,6 +8,8 @@ import { OUT_TYPES, MAIN_TYPES, IPS, BRANDS, TECH_BRANDS, FORMS } from '../lib/p
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const L = t(lang);
+// changes whenever the data file changes, so browsers never keep an outdated copy
+const dataVersion = createHash('md5').update(readFileSync('public/pricing/data.json')).digest('hex').slice(0, 10);
 const ar = lang === 'ar';
 
 const S = ar ? {
@@ -42,7 +46,7 @@ const S = ar ? {
 const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 'PFC', 'ATS', 'PILLAR', 'COFFREE', 'LCP'];
 ---
 <Base lang={lang} title={L.nav.pricing} description={S.lead}>
-  <div class="container pricing" id="pricing" data-s={JSON.stringify({ ...S, dbInfo: undefined })} data-lang={lang}>
+  <div class="container pricing" id="pricing" data-v={dataVersion} data-s={JSON.stringify({ ...S, dbInfo: undefined })} data-lang={lang}>
     <header class="page-head no-print">
       <span class="badge">⚡ {L.nav.pricing}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
@@ -347,7 +351,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
   }
   update();
 
-  fetch('/pricing/data.json')
+  fetch(`/pricing/data.json?v=${document.querySelector('.pricing')!.getAttribute('data-v')}`)
     .then((r) => r.json())
     .then((d: Data) => {
       est = new Estimator(d);

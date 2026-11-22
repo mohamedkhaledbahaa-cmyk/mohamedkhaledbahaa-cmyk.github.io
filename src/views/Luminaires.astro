@@ -1,10 +1,14 @@
 ---
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
 import { t, type Lang } from '../i18n';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const L = t(lang);
+// changes whenever the data file changes, so browsers never keep an outdated copy
+const dataVersion = createHash('md5').update(readFileSync('public/luminaires/data.json')).digest('hex').slice(0, 10);
 const ar = lang === 'ar';
 const S = ar ? {
   title: 'تسعير الكشافات', lead: 'اكتب وصف الكشاف واختار النوع والبراند والمواصفات، وخد السعر المقترح والعرض الفني فورًا.',
@@ -34,7 +38,7 @@ const S = ar ? {
 const txt = { ...S, matched: undefined, estimate: undefined };
 ---
 <Base lang={lang} title={L.nav.lights} description={S.lead}>
-  <div class="container pricing" id="lum" data-s={JSON.stringify(txt)} data-lang={lang}>
+  <div class="container pricing" id="lum" data-v={dataVersion} data-s={JSON.stringify(txt)} data-lang={lang}>
     <header class="page-head no-print">
       <span class="badge">💡 {L.nav.lights}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
@@ -234,7 +238,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
   });
 
   Promise.all([
-    fetch('/luminaires/data.json').then((r) => r.json()),
+    fetch(`/luminaires/data.json?v=${document.querySelector('.pricing')!.getAttribute('data-v')}`).then((r) => r.json()),
     fetch('/market.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => null),
   ]).then(([d, mk]: [LumData, any]) => {
     est = new LumEstimator(d);

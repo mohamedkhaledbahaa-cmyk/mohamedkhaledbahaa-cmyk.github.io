@@ -1,10 +1,14 @@
 ---
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import Base from '../layouts/Base.astro';
 import { t, type Lang } from '../i18n';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const L = t(lang);
+// changes whenever the data file changes, so browsers never keep an outdated copy
+const dataVersion = createHash('md5').update(readFileSync('public/cables/data.json')).digest('hex').slice(0, 10);
 const ar = lang === 'ar';
 const S = ar ? {
   title: 'تسعير الكابلات', lead: 'اختار نوع الكابل والمقاس والجهد والمورد، وخد السعر المقترح والعرض الفني فورًا.',
@@ -32,7 +36,7 @@ const S = ar ? {
 const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
 ---
 <Base lang={lang} title={L.nav.cables} description={S.lead}>
-  <div class="container pricing" id="cables" data-s={JSON.stringify(txt)} data-lang={lang}>
+  <div class="container pricing" id="cables" data-v={dataVersion} data-s={JSON.stringify(txt)} data-lang={lang}>
     <header class="page-head no-print">
       <span class="badge">🔌 {L.nav.cables}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
@@ -247,7 +251,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
 
   $('cb-reset').addEventListener('click', () => { if (today) { setMarketInputs(today); update(); } });
   Promise.all([
-    fetch('/cables/data.json').then((r) => r.json()),
+    fetch(`/cables/data.json?v=${document.querySelector('.pricing')!.getAttribute('data-v')}`).then((r) => r.json()),
     fetch('/market.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => null),
   ]).then(([d, mk]: [CableData, any]) => {
     today = mk && mk.cu && mk.al && mk.usd ? { cu: +mk.cu, al: +mk.al, usd: +mk.usd } : { cu: d.meta.cu, al: d.meta.al, usd: d.meta.usd };
