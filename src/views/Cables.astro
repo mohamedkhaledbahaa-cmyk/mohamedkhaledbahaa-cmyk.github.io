@@ -113,6 +113,9 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     supplier: (n: number) => (ar ? `متوسط ${n} سعر من المورد` : `Avg of ${n} supplier prices`),
     fallback: (n: number) => (ar ? `بديل: متوسط ${n} سعر من كل الموردين` : `Fallback: avg of ${n} prices, all suppliers`),
     all: (n: number) => (ar ? `متوسط ${n} سعر من كل الموردين` : `Avg of ${n} prices, all suppliers`),
+    derived: (n: number, from: string, f: number, own: boolean) => (ar
+      ? `مشتق من ${from} × ${f.toFixed(2)} (${n} سعر${own ? ' من المورد' : ' من كل الموردين'})`
+      : `Derived from ${from} × ${f.toFixed(2)} (${n} ${own ? 'supplier' : 'all-supplier'} prices)`),
   };
   const form = document.getElementById('cb-form') as HTMLFormElement;
   const box = document.getElementById('cb-lines')!;
@@ -188,11 +191,11 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     $('c-vat').textContent = `${fmt(r.incVat)} EGP`;
     $('c-usd').textContent = `$ ${fmt(r.usd)}`;
     $('c-lines').innerHTML = r.lines.map((x, i) => {
-      const src = x.line.override ? S.src.manual : x.mode === 'none' ? S.src.none : srcText[x.mode](x.n);
+      const src = x.line.override ? S.src.manual : x.mode === 'none' ? S.src.none : x.mode === 'derived' ? srcText.derived(x.n, x.from!, x.factor, !!x.ownDerived) : srcText[x.mode](x.n);
       return `<div class="cb-res${x.mode === 'none' && !x.line.override ? ' cb-miss' : ''}">
         <div class="cb-res-h"><b>${i + 1}. ${esc(x.line.type)} ${esc(x.line.size)}</b><span>${esc(x.line.voltage)}</span></div>
         <div class="cb-res-g"><span>${S.basis}</span><b>${fmt(x.base, 2)}</b><span>${S.sell}</span><b>${fmt(x.sell, 2)}</b><span>${S.total}</span><b>${fmt(x.total)}</b></div>
-        <small class="${x.mode === 'fallback' ? 'cb-warn' : ''}">${esc(src)}</small></div>`;
+        <small class="${x.mode === 'fallback' || x.mode === 'derived' ? 'cb-warn' : ''}">${esc(src)}</small></div>`;
     }).join('');
     if (offerOpen) renderOffer(inp);
   }
@@ -203,7 +206,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     const rows = inp.lines.filter((l) => l.type && l.size).map((l, i) => {
       const t = est!.tech(l);
       const b = est!.basis(l, inp.settings.brand);
-      const mfr = b.mode === 'supplier' ? brand : 'As per approved supplier';
+      const mfr = b.mode === 'supplier' || (b.mode === 'derived' && b.ownDerived) ? brand : 'As per approved supplier';
       const z = (v: number) => (v ? String(v) : '-');
       return `<tr><td>${i + 1}</td><td class="o-desc"><b>${esc(t.designation)}</b><br><small>${esc(t.construction)}</small></td><td>${esc(mfr)}</td><td>${esc(t.standards)}</td>
         <td>${esc(t.voltage)}</td><td>${esc(t.temp)}</td><td class="o-num">${z(t.rdc)}</td><td class="o-num">${z(t.ig)}</td><td class="o-num">${z(t.id)}</td><td class="o-num">${z(t.ia)}</td>
@@ -241,7 +244,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
       ["Watt's Tender — Cable Pricing"], ['Project', inp.project], ['Supplier', inp.settings.brand === 'all' ? 'Average of all suppliers' : inp.settings.brand],
       ['LME Cu ($/t)', m.cu], ['LME Al ($/t)', m.al], ['USD (EGP)', m.usd], ['Wastage', inp.settings.wastage], ['Margin', inp.settings.margin], [],
       ['#', 'Cable type', 'Size', 'Voltage', 'Qty (m)', 'Basis EGP/m', 'Cost EGP/m', 'Sell EGP/m', 'Total EGP', 'Price basis'],
-      ...r.lines.map((x, i) => [i + 1, x.line.type, x.line.size, x.line.voltage, x.line.qty, x.base ?? '', x.cost ?? '', x.sell ?? '', x.total ?? '', x.line.override ? 'Manual' : x.mode === 'none' ? 'Not in DB' : `${x.mode} (${x.n})`]),
+      ...r.lines.map((x, i) => [i + 1, x.line.type, x.line.size, x.line.voltage, x.line.qty, x.base ?? '', x.cost ?? '', x.sell ?? '', x.total ?? '', x.line.override ? 'Manual' : x.mode === 'none' ? 'Not in DB' : x.mode === 'derived' ? `derived from ${x.from} × ${x.factor.toFixed(2)} (${x.n})` : `${x.mode} (${x.n})`]),
       [], ['', '', '', '', '', '', '', 'Total cost', r.cost], ['', '', '', '', '', '', '', 'Total sell', r.sell], ['', '', '', '', '', '', '', 'Incl. VAT', r.incVat],
     ];
     const tech: (string | number)[][] = [['#', 'Designation', 'Construction', 'Standards', 'Voltage', 'Max temp', 'Rdc 20°C Ω/km', 'I ground A', 'I duct A', 'I air A', 'OD mm', 'Weight kg/km', 'Qty m', 'Source'],

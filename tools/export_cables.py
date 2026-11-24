@@ -71,6 +71,9 @@ data = {
         'cu': num(boq['G6'].value), 'al': num(boq['G7'].value), 'usd': num(boq['G8'].value),
         'wastage': num(boq['C5'].value) or 0, 'margin': num(boq['C6'].value) or 0, 'vat': num(boq['C7'].value) or 0,
         'prices': len(rows), 'brands': len({r[3] for r in rows}),
+        # MV unarmoured / armoured price ratios (used to derive a missing MV cable from its armoured/unarmoured twin)
+        'mvRatioCu': num(st['D18'].value) if 'ratio' in str(st['C18'].value or '').lower() else None,
+        'mvRatioAl': num(st['D19'].value) if 'ratio' in str(st['C19'].value or '').lower() else None,
         'maxAge': num(st['D8'].value) or 365, 'nonMetalEsc': num(st['D17'].value) or 0,
         'egyptalum': num(st['D5'].value), 'alPremium': num(st['D11'].value) / (num(st['D12'].value) * num(st['D13'].value)) - 1,
     },

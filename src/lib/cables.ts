@@ -2,7 +2,7 @@
 
 export interface Offer { egp: boolean; cuBase: number | null; baseER: number; cuX: number; alBasis: string; alBase: number; alX: number; freight: number; other: number; active: number; date: number; validUntil: number | null }
 export interface CableData {
-  meta: { priceDate: string; cu: number; al: number; usd: number; wastage: number; margin: number; vat: number; prices: number; brands: number; maxAge: number; nonMetalEsc: number; egyptalum: number | null; alPremium: number };
+  meta: { priceDate: string; cu: number; al: number; usd: number; wastage: number; margin: number; vat: number; prices: number; brands: number; maxAge: number; mvRatioCu?: number | null; mvRatioAl?: number | null; nonMetalEsc: number; egyptalum: number | null; alPremium: number };
   offers: Offer[];
   rows: [string, string, string, string, number, number, number, number, number][]; // type, size, voltage, brand, quoted, Cu kg/km, Al kg/km, offer, cached EGP/m
   types: Record<string, [string, string, string, string]>; // libType, construction, extra standards, max temp
@@ -22,6 +22,12 @@ export function bySize(a: string, b: string) {
   // cores first, then cross-section
   for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] ?? -1) !== (y[i] ?? -1)) return (x[i] ?? -1) - (y[i] ?? -1);
   return a.localeCompare(b);
+}
+
+/** BOQ_Pricing!V — for MV cables, the armoured (STA) / unarmoured twin used to derive a missing price */
+export function altType(type: string, voltage: string): string | null {
+  if (!voltage || voltage === '0.6/1 kV' || !/kv/i.test(voltage)) return null;
+  return /\/sta\//i.test(type) ? type.split('STA/').join('') : type.split('/PVC').join('/STA/PVC');
 }
 
 export class CableEstimator {
@@ -67,20 +73,49 @@ export class CableEstimator {
       if (!mm.has(s)) mm.set(s, new Set());
       mm.get(s)!.add(v);
     }
+    // MV cables with no price of their own but a priced armoured/unarmoured twin can be selected too
+    for (const [t, s, v] of [...this.priced]) {
+      const a = altType(t, v);
+      if (!a || !this.mvFactor(a) || this.tree.get(a)?.get(s)?.has(v)) continue;
+      if (!this.tree.has(a)) this.tree.set(a, new Map());
+      const mm = this.tree.get(a)!;
+      if (!mm.has(s)) mm.set(s, new Set());
+      mm.get(s)!.add(v);
+    }
   }
   types() { return [...this.tree.keys()].sort(); }
   sizes(t: string) { return [...(this.tree.get(t)?.keys() ?? [])].sort(bySize); }
   voltages(t: string, s: string) { return [...(this.tree.get(t)?.get(s) ?? [])].sort(); }
   brandsFor(t: string, s: string, v: string) { return [...new Set(this.priced.filter((r) => r[0] === t && r[1] === s && r[2] === v).map((r) => r[3]))]; }
 
-  /** BOQ_Pricing!G: average of the supplier's prices for this cable, else average of all suppliers (fallback) */
+  /** Settings!D18/D19 — unarmoured ÷ armoured price ratio (Cu / Al); armoured is derived by dividing */
+  mvFactor(type: string) {
+    const ratio = (/^al/i.test(type) ? this.d.meta.mvRatioAl : this.d.meta.mvRatioCu) || 0;
+    return ratio ? (/\/sta\//i.test(type) ? 1 / ratio : ratio) : 0;
+  }
+
+  /** BOQ_Pricing!G: average of the supplier's prices for this cable, else average of all suppliers (fallback),
+   *  else (MV only) derived from the armoured / unarmoured twin × ratio */
   basis(l: CableLine, brand: string) {
-    const all = this.priced.filter((r) => r[0] === l.type && r[1] === l.size && r[2] === l.voltage);
+    const rowsFor = (t: string) => this.priced.filter((r) => r[0] === t && r[1] === l.size && r[2] === l.voltage);
+    const all = rowsFor(l.type);
     const own = brand && brand !== 'all' ? all.filter((r) => r[3] === brand) : [];
-    const use = own.length ? own : all;
-    const avg = use.length ? use.reduce((s, r) => s + r[4], 0) / use.length : null;
-    const mode: 'supplier' | 'fallback' | 'all' | 'none' = !all.length ? 'none' : own.length ? 'supplier' : brand && brand !== 'all' ? 'fallback' : 'all';
-    return { avg, n: use.length, mode, min: use.length ? Math.min(...use.map((r) => r[4])) : null, max: use.length ? Math.max(...use.map((r) => r[4])) : null };
+    let use = own.length ? own : all;
+    let factor = 1, from: string | null = null;
+    let mode: 'supplier' | 'fallback' | 'all' | 'derived' | 'none' = !all.length ? 'none' : own.length ? 'supplier' : brand && brand !== 'all' ? 'fallback' : 'all';
+    if (!all.length) {
+      const alt = altType(l.type, l.voltage);
+      const f = alt ? this.mvFactor(l.type) : 0;
+      const altAll = alt && f ? rowsFor(alt) : [];
+      if (altAll.length) {
+        const altOwn = brand && brand !== 'all' ? altAll.filter((r) => r[3] === brand) : [];
+        use = altOwn.length ? altOwn : altAll;
+        factor = f; from = alt; mode = 'derived';
+      }
+    }
+    const avg = use.length ? (use.reduce((s, r) => s + r[4], 0) / use.length) * factor : null;
+    const ownDerived = mode === 'derived' && brand && brand !== 'all' && use.every((r) => r[3] === brand);
+    return { avg, n: use.length, mode, from, factor, ownDerived, min: use.length ? Math.min(...use.map((r) => r[4])) * factor : null, max: use.length ? Math.max(...use.map((r) => r[4])) * factor : null };
   }
 
   price(lines: CableLine[], s: CableSettings) {
