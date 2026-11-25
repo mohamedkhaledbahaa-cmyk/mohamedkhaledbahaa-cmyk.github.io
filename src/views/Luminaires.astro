@@ -43,6 +43,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
       <span class="badge">💡 {L.nav.lights}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
       <p>{S.lead}</p>
+      <p class="pr-owner">✍️ {L.preparedBy}: <b>{L.author}</b></p>
       <p class="pr-db" id="lx-db">{S.loading}</p>
     </header>
 
@@ -195,7 +196,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
     const basis = { 'Closest to suggested price': 'closest to suggested price', 'Lowest price': 'lowest price', 'Highest price': 'highest price' }[inp.s.techBasis] ?? inp.s.techBasis;
     $('lx-offer').innerHTML = `
       <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" />
-        <div><h2>PROPOSED TECHNICAL OFFER – LIGHTING FIXTURES</h2><p>Watt's Tender</p></div></header>
+        <div><h2>PROPOSED TECHNICAL OFFER – LIGHTING FIXTURES</h2><p>Prepared by Eng. Mohamed Khaled Bahaa El-Din – Watt's Tender</p></div></header>
       <table class="o-info">
         <tr><th>Project</th><td>${esc(inp.info.project || '—')}</td><th>Client</th><td>${esc(inp.info.client || '—')}</td></tr>
         <tr><th>Consultant</th><td>${esc(inp.info.consultant || '—')}</td><th>Tender / BOQ ref.</th><td>${esc(inp.info.tref || '—')}</td></tr>
@@ -208,7 +209,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
         <tbody>${rows}</tbody></table></div>
       <h3>APPROVALS</h3>
       <table class="o-info o-sign"><tr><th>Prepared by</th><th>Reviewed by</th><th>Approved by</th></tr>
-        <tr><td>Watt's Tender<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td></tr></table>`;
+        <tr><td>Eng. Mohamed Khaled Bahaa El-Din<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td><td>Name: ____________<br><br>Signature: ____________ Date: ________</td></tr></table>`;
   }
 
   $('lx-add').addEventListener('click', () => { addLine(); update(); });
@@ -226,7 +227,7 @@ const txt = { ...S, matched: undefined, estimate: undefined };
     const res = inp.lines.map((l) => ({ l, r: est!.line(l, inp.s) }));
     const total = res.reduce((a, x) => a + (x.r.total ?? 0), 0);
     const rows: (string | number)[][] = [
-      ["Watt's Tender — Luminaire Pricing"], ['Project', inp.info.project], ['Client', inp.info.client], ['Consultant', inp.info.consultant], ['Tender ref.', inp.info.tref],
+      ["Watt's Tender — Luminaire Pricing"], ['Prepared by', 'Eng. Mohamed Khaled Bahaa El-Din'], ['Project', inp.info.project], ['Client', inp.info.client], ['Consultant', inp.info.consultant], ['Tender ref.', inp.info.tref],
       ['USD (EGP)', inp.s.usd], ['Method', inp.s.method], ['Watt tolerance', inp.s.tol], [],
       ['#', 'Description', 'Type', 'Brand', 'W', 'lm', 'CCT', 'IP', 'Emergency', 'Dimmable', 'Qty', 'Unit EGP', 'Total EGP', 'Min', 'Average', 'Max', 'Basis'],
       ...res.map(({ l, r }, i) => [i + 1, l.ref, l.type, l.brand, l.w || '', l.lm || '', l.cct, l.ip || '', l.em, l.dim, l.qty, r.unit ?? '', r.total ?? '', r.min ?? '', r.avg ?? '', r.max ?? '', r.basis === 'matched' ? `Matched ${r.n}` : r.basis]),

@@ -539,3 +539,6 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 .p3-dim-d { left: 50%; bottom: -24px; transform: translateX(-50%); }
 .p3-hint { text-align: center; margin: 0 0 4px; font-size: .75rem; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .p3-box { transition: none; } }
+.pr-owner { margin-top: 6px !important; font-size: .9rem; color: var(--muted) !important; }
+.pr-owner b { color: var(--text); }
+.site-footer small { opacity: .85; }

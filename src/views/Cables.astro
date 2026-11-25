@@ -41,6 +41,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
       <span class="badge">🔌 {L.nav.cables}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
       <p>{S.lead}</p>
+      <p class="pr-owner">✍️ {L.preparedBy}: <b>{L.author}</b></p>
       <p class="pr-db" id="cb-db">{S.loading}</p>
     </header>
 
@@ -217,7 +218,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
         <div><h2>TECHNICAL OFFER – POWER CABLES</h2><p>Indexed to LME Cu ${fmt(est!.market.cu)} $/t • Al ${fmt(est!.market.al)} $/t • USD ${est!.market.usd} EGP</p></div></header>
       <table class="o-info">
         <tr><th>Project</th><td>${esc(inp.project)}</td><th>Date</th><td>${new Date().toISOString().slice(0, 10)}</td></tr>
-        <tr><th>Ref.</th><td>TO-CBL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}</td><th>Submitted by</th><td>Watt's Tender</td></tr>
+        <tr><th>Ref.</th><td>TO-CBL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}</td><th>Prepared by</th><td>Eng. Mohamed Khaled Bahaa El-Din – Watt's Tender</td></tr>
         <tr><th>Manufacturer</th><td>${esc(brand)}</td><th>Total (excl. VAT)</th><td><b>${fmt(est!.price(inp.lines, inp.settings).sell)} EGP</b></td></tr>
       </table>
       <h3>CABLE SCHEDULE & TECHNICAL DATA</h3>
@@ -241,7 +242,7 @@ const txt = { ...S, src: { manual: S.src.manual, none: S.src.none } };
     if (!est) return;
     const inp = read(), r = est.price(inp.lines, inp.settings), m = est.market;
     const rows: (string | number)[][] = [
-      ["Watt's Tender — Cable Pricing"], ['Project', inp.project], ['Supplier', inp.settings.brand === 'all' ? 'Average of all suppliers' : inp.settings.brand],
+      ["Watt's Tender — Cable Pricing"], ['Prepared by', 'Eng. Mohamed Khaled Bahaa El-Din'], ['Project', inp.project], ['Supplier', inp.settings.brand === 'all' ? 'Average of all suppliers' : inp.settings.brand],
       ['LME Cu ($/t)', m.cu], ['LME Al ($/t)', m.al], ['USD (EGP)', m.usd], ['Wastage', inp.settings.wastage], ['Margin', inp.settings.margin], [],
       ['#', 'Cable type', 'Size', 'Voltage', 'Qty (m)', 'Basis EGP/m', 'Cost EGP/m', 'Sell EGP/m', 'Total EGP', 'Price basis'],
       ...r.lines.map((x, i) => [i + 1, x.line.type, x.line.size, x.line.voltage, x.line.qty, x.base ?? '', x.cost ?? '', x.sell ?? '', x.total ?? '', x.line.override ? 'Manual' : x.mode === 'none' ? 'Not in DB' : x.mode === 'derived' ? `derived from ${x.from} × ${x.factor.toFixed(2)} (${x.n})` : `${x.mode} (${x.n})`]),

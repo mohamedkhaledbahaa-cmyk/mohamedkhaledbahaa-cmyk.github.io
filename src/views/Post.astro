@@ -31,7 +31,7 @@ const related = all
       <a href={url(lang, `/category/${category}/`)} class="badge">{L.categories[category]}</a>
       <h1>{title}</h1>
       <p class="lead">{description}</p>
-      <div class="author-line"><span class="avatar">{author.charAt(0)}</span>{author}</div>
+      <div class="author-line"><span class="avatar">{author.replace(/^(Eng\.|م\.)\s*/, "").charAt(0)}</span>{author}</div>
       <div class="meta">
         <time datetime={date.toISOString()}>{formatDate(lang, date)}</time>
         <span class="dot"></span><span>{L.reading(readingTime(article.body))}</span>
@@ -79,7 +79,7 @@ const related = all
         </button>
       </div>
       <div class="author-box">
-        <span class="avatar">{author.charAt(0)}</span>
+        <span class="avatar">{author.replace(/^(Eng\.|م\.)\s*/, "").charAt(0)}</span>
         <div><h4>{author}</h4><p>{L.authorBio}</p></div>
       </div>
       {(newer || older) && (

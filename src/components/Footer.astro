@@ -7,7 +7,7 @@ const L = t(lang);
 ---
 <footer class="site-footer">
   <div class="container footer-grid">
-    <div>© {num(lang, new Date().getFullYear())} <bdi>{SITE.title}</bdi> — {L.rights}</div>
+    <div>© {num(lang, new Date().getFullYear())} <bdi>{SITE.title}</bdi> — {L.rights}<br /><small>{L.preparedBy}: {SITE.owner[lang]}</small></div>
     <div class="footer-links">
       <a href={url(lang, '/blog/')}>{L.nav.articles}</a>
       <a href={url(lang, '/pricing/')}>{L.nav.pricing}</a>

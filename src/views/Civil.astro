@@ -52,6 +52,7 @@ const S = ar ? {
       <span class="badge">🏗️ {L.nav.civil}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
       <p>{S.lead}</p>
+      <p class="pr-owner">✍️ {L.preparedBy}: <b>{L.author}</b></p>
     </header>
 
     <div class="pr-layout no-print">
@@ -268,7 +269,7 @@ const S = ar ? {
       : `<tr><td>${r[0]}</td><td class="o-desc">${esc(r[1])}</td><td>${r[2]}</td><td class="o-num">${fmt(+r[3], 2)}</td><td class="o-num">${fmt(+r[4], 2)}</td><td class="o-num">${fmt(+r[5], 2)}</td><td class="o-num">${fmt(+r[6], 2)}</td><td class="o-num">${fmt(+r[7])}</td></tr>`).join('');
     const tot = c.tTr + c.tMh + c.tFd;
     $('cv-offer').innerHTML = `
-      <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" /><div><h2>CIVIL WORKS – BILL OF QUANTITIES</h2><p>Trenches, manholes & foundations • ${new Date().toISOString().slice(0, 10)}</p></div></header>
+      <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" /><div><h2>CIVIL WORKS – BILL OF QUANTITIES</h2><p>Trenches, manholes & foundations • ${new Date().toISOString().slice(0, 10)} • Prepared by Eng. Mohamed Khaled Bahaa El-Din</p></div></header>
       <p class="o-scope">Concrete rates used: ${conc || '—'}</p>
       <div class="o-scroll"><table class="o-bom"><thead><tr><th>Item</th><th>Description</th><th>Unit</th><th>Qty</th><th>Supply / unit</th><th>Install / unit</th><th>Rate / unit</th><th>Total EGP</th></tr></thead>
       <tbody>${body}</tbody><tfoot><tr><td colspan="7">Total (EGP, excl. VAT)</td><td class="o-num">${fmt(tot)}</td></tr><tr><td colspan="7">Total incl. 14% VAT</td><td class="o-num">${fmt(tot * 1.14)}</td></tr></tfoot></table></div>

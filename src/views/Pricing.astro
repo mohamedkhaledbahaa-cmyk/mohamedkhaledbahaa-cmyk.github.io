@@ -51,6 +51,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
       <span class="badge">⚡ {L.nav.pricing}</span>
       <h1 style="margin-top:12px">{S.title}</h1>
       <p>{S.lead}</p>
+      <p class="pr-owner">✍️ {L.preparedBy}: <b>{L.author}</b></p>
       <p class="pr-db" id="pr-db">{S.loading}</p>
     </header>
 
@@ -300,7 +301,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
         <tr><th>Panel type</th><td>${esc(o.typeText)}</td><th>Quantity</th><td>${inp.qty}</td></tr>
         <tr><th>Components brand</th><td>${esc(inp.techBrand)}</td><th>Est. price / panel</th><td><b>${fmt(r.techPrice)} EGP</b></td></tr>
         <tr><th>Enclosure</th><td>${esc(o.enclosure)}</td><th>Est. total (qty)</th><td><b>${fmt(r.techPrice * inp.qty)} EGP</b></td></tr>
-        <tr><th>Prepared by</th><td>Watt's Tender</td><th>PFC</th><td>${r.pfc.on ? `${r.pfc.kvar} kVAR (${r.pfc.type})` : 'None'}</td></tr>
+        <tr><th>Prepared by</th><td>Eng. Mohamed Khaled Bahaa El-Din – Watt's Tender</td><th>PFC</th><td>${r.pfc.on ? `${r.pfc.kvar} kVAR (${r.pfc.type})` : 'None'}</td></tr>
       </table>
       <h3>1. GENERAL SPECIFICATIONS</h3>
       <table class="o-info">${pairs.join('')}</table>
@@ -330,7 +331,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
     if (!est) return;
     const inp = readInput(), r = est.calc(inp), o = est.offer(inp, r);
     const sum: (string | number)[][] = [
-      ["Watt's Tender — LV Panel Budget Estimate"], [],
+      ["Watt's Tender — LV Panel Budget Estimate"], ['Prepared by', 'Eng. Mohamed Khaled Bahaa El-Din'], [],
       ['Project', inp.project], ['Panel', inp.panel], ['Panel type', o.typeText], ['Main breaker', `${inp.mainType} ${inp.mainA} A ${inp.mainPoles}P × ${inp.incomers}`],
       ['IP', inp.ip === '' ? '' : `IP${inp.ip}`], ['Quantity', inp.qty], [],
       ['Suggested price / panel (EGP excl. VAT)', Math.round(r.price)], ['Low', Math.round(r.low)], ['High', Math.round(r.high)],
