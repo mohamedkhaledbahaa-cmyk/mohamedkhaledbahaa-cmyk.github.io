@@ -374,8 +374,6 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
 .pr-col-W, .pr-col-P\ , .pr-col-C { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
 /* ===== Animations ===== */
-@view-transition { navigation: auto; }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; }
 
 .rv { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: var(--rv-delay, 0ms); }
 .rv.rv-in { opacity: 1; transform: none; }
