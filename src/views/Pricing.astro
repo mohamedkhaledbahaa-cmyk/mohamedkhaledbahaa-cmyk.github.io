@@ -23,7 +23,7 @@ const S = ar ? {
   result: 'النتيجة', excl: 'جنيه مصري — بدون ضريبة', unit: 'السعر المقترح للوحة الواحدة', range: 'المدى المتوقع', lowL: 'أقل سعر', highL: 'أعلى سعر',
   total: 'الإجمالي للكمية', usdL: 'بالدولار (للمرجع)', conf: 'مدى الثقة في السعر', sim: 'التشابه مع أقرب لوحة', confT: { high: 'عالي', medium: 'متوسط', low: 'ضعيف – راجع يدوي' },
   details: 'تفاصيل الحساب', panelOnly: 'سعر اللوحة (بدون باور فاكتور)', pfcP: 'سعر الباور فاكتور', m1: 'طريقة 1: أقرب لوحات عند 3 موردين', m2: 'طريقة 2: النموذج الإحصائي',
-  summary: 'ملخص', outsCount: 'إجمالي المخارج', formUsed: 'الـ Form المستخدم', brk: 'تكلفة القواطع (قائمة شنايدر 2026)', dims: 'الأبعاد المقترحة', dimsTitle: 'أبعاد اللوحة التقريبية', wL: 'العرض', hL: 'الارتفاع', dL: 'العمق', mm: 'مم', colsL: 'عدد الأعمدة', legend: 'F = مخارج  •  I = قاطع رئيسي  •  A = مخرج ACB  •  P = باور فاكتور', modeT: { FLOOR: 'لوحة أرضية', WALL: 'لوحة حائطية', PIL: 'بيلر خارجي' }, dbInfo: (p: string, o: string, d: string) => `مبني على ${p} لوحة من ${o} عرض سعر حقيقي — أسعار محدّثة لتاريخ ${d}`,
+  summary: 'ملخص', outsCount: 'إجمالي المخارج', formUsed: 'الـ Form المستخدم', brk: 'تكلفة القواطع (قائمة شنايدر 2026)', dims: 'الأبعاد المقترحة', dimsTitle: 'أبعاد اللوحة التقريبية', drag3d: 'اسحب للف المجسّم • دبل كليك للرجوع', wL: 'العرض', hL: 'الارتفاع', dL: 'العمق', mm: 'مم', colsL: 'عدد الأعمدة', legend: 'F = مخارج  •  I = قاطع رئيسي  •  A = مخرج ACB  •  P = باور فاكتور', modeT: { FLOOR: 'لوحة أرضية', WALL: 'لوحة حائطية', PIL: 'بيلر خارجي' }, dbInfo: (p: string, o: string, d: string) => `مبني على ${p} لوحة من ${o} عرض سعر حقيقي — أسعار محدّثة لتاريخ ${d}`,
   offerBtn: 'اعرض العرض الفني ←', offer: 'العرض الفني المقترح', techBrand: 'ماركة المكونات', adv: 'خيارات إضافية', ka: 'قدرة القصر kA (فاضي = تلقائي)', formO: 'Form للعرض (فاضي = من التسعير)',
   cable: 'دخول الكابلات', spd: 'إضافة SPD (حماية من الصواعق)؟', amb: 'درجة الحرارة المحيطة °C', print: 'طباعة / حفظ PDF', excel: 'تحميل Excel', loading: 'جاري تحميل قاعدة البيانات…', err: 'تعذّر تحميل البيانات. حدّث الصفحة.',
   disclaimer: 'السعر تقريبي (Budget) مبني على عروض أسعار سابقة، والفرق بين الموردين لنفس اللوحة ممكن يوصل 30–60%. استخدمه كمرجع مبدئي.',
@@ -38,7 +38,7 @@ const S = ar ? {
   result: 'Result', excl: 'EGP — excl. VAT', unit: 'Suggested price per panel', range: 'Expected range', lowL: 'Low', highL: 'High',
   total: 'Total for quantity', usdL: 'In USD (reference)', conf: 'Price confidence', sim: 'Similarity to closest panel', confT: { high: 'High', medium: 'Medium', low: 'Low – review manually' },
   details: 'Calculation details', panelOnly: 'Panel price (excl. PFC)', pfcP: 'PFC price', m1: 'Method 1: closest panels from 3 suppliers', m2: 'Method 2: statistical model',
-  summary: 'Summary', outsCount: 'Total outgoings', formUsed: 'Form used', brk: 'Breakers cost (Schneider PL 2026)', dims: 'Proposed dimensions', dimsTitle: 'Approximate panel dimensions', wL: 'Width', hL: 'Height', dL: 'Depth', mm: 'mm', colsL: 'Columns', legend: 'F = feeders  •  I = incomer  •  A = ACB outgoing  •  P = PFC', modeT: { FLOOR: 'Floor-standing', WALL: 'Wall-mounted', PIL: 'Outdoor pillar' }, dbInfo: (p: string, o: string, d: string) => `Based on ${p} panels from ${o} real supplier offers — prices updated to ${d}`,
+  summary: 'Summary', outsCount: 'Total outgoings', formUsed: 'Form used', brk: 'Breakers cost (Schneider PL 2026)', dims: 'Proposed dimensions', dimsTitle: 'Approximate panel dimensions', drag3d: 'Drag to rotate • double-click to reset', wL: 'Width', hL: 'Height', dL: 'Depth', mm: 'mm', colsL: 'Columns', legend: 'F = feeders  •  I = incomer  •  A = ACB outgoing  •  P = PFC', modeT: { FLOOR: 'Floor-standing', WALL: 'Wall-mounted', PIL: 'Outdoor pillar' }, dbInfo: (p: string, o: string, d: string) => `Based on ${p} panels from ${o} real supplier offers — prices updated to ${d}`,
   offerBtn: 'Show technical offer →', offer: 'Proposed technical offer', techBrand: 'Components brand', adv: 'More options', ka: 'Short-circuit kA (blank = auto)', formO: 'Offer form (blank = from estimator)',
   cable: 'Cable entry', spd: 'Add surge protection (SPD)?', amb: 'Ambient temperature °C', print: 'Print / save PDF', excel: 'Download Excel', loading: 'Loading database…', err: 'Could not load data. Please refresh.',
   disclaimer: 'Budget price based on past supplier offers; the same panel can differ 30–60% between suppliers. Use it as a first reference.',
@@ -128,7 +128,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
               <div><b id="r-d">—</b><span>{S.dL}</span></div>
             </div>
             <p class="pr-dims-sub"><span id="r-mode">—</span> · {S.mm}</p>
-            <div class="pr-elev" id="r-elev" dir="ltr" aria-hidden="true"></div>
+            <div class="p3-host" id="r-elev" dir="ltr" aria-hidden="true"></div>
             <p class="pr-hint" style="margin-top:8px">{S.legend}</p>
           </div>
           <details class="pr-details">
@@ -171,6 +171,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
 <script>
   import { Estimator, NOTES, type Data, type Input } from '../lib/pricing';
   import { downloadXlsx } from '../lib/excel';
+  import { renderPanel3D } from '../lib/panel3d';
 
   const root = document.getElementById('pricing')!;
   const S = JSON.parse(root.dataset.s!);
@@ -274,10 +275,7 @@ const CATS = ['MDB', 'EMDB', 'SMDB', 'ESMDB', 'DB', 'EDB', 'LP', 'MCC', 'EMCC', 
     $('r-h').textContent = fmt(r.dims.H);
     $('r-d').textContent = fmt(r.dims.D);
     $('r-mode').textContent = `${S.modeT[r.dims.mode]}${r.dims.mode === 'FLOOR' ? ` · ${S.colsL}: ${r.dims.columns}` : ''}`;
-    const tot = r.dims.layout.reduce((s, c) => s + c.w, 0) || 1;
-    const hPct = Math.min(100, Math.max(35, (r.dims.H / 2200) * 100));
-    $('r-elev').innerHTML = `<div class="pr-elev-box" style="height:${hPct * 1.3}px">${r.dims.layout
-      .map((c) => `<div class="pr-col pr-col-${c.code[0]}" style="flex:${c.w / tot}"><b>${esc(c.label)}</b><small>${fmt(c.w)}</small></div>`).join('')}</div>`;
+    renderPanel3D($('r-elev'), r.dims, { w: 'W', h: 'H', d: 'D', hint: S.drag3d });
     if (offerOpen) renderOffer(inp, r);
   }
 
