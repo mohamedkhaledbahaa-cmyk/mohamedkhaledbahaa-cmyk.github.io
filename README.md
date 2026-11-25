@@ -91,3 +91,7 @@ python3 tools/export_cables.py "Cable_Pricing_DB_LME_2.xlsm"
 ```bash
 python3 tools/export_luminaires.py "Luminaire_Pricing_Tool.xlsx"
 ```
+
+## الأعمال المدنية (`/civil`)
+نسخة من شيت `Civil` في `Electrical_Pricing_Sheet_PRO`: خنادق (لكل متر)، غرف تفتيش، وقواعد. المستخدم بيدخل سعر الخرسانة (ويقدر يضيف أنواع)، والكميات بتتحسب من المقاسات بنفس معادلات الشيت.
+- الحسابات: `src/lib/civil.ts` — الصفحة: `src/views/Civil.astro` (مفيش ملف بيانات؛ الأسعار الافتراضية في `DEFAULT_PRICES`)

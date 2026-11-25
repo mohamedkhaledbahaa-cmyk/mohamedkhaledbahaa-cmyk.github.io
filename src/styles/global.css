@@ -491,3 +491,20 @@ html[lang='en'] .hero h1 { letter-spacing: -.02em; }
   .site-header { backdrop-filter: none; background: var(--bg); }
   .hero h1 span { animation: none; background-position: 0 center; }
 }
+
+/* ===== Civil works ===== */
+.cv-prices { display: flex; flex-direction: column; gap: 8px; }
+.cv-prow { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(90px, .7fr) minmax(90px, .7fr); gap: 10px; align-items: end; }
+.cv-prow label { display: flex; flex-direction: column; gap: 4px; font-size: .75rem; color: var(--muted); }
+.cv-pname { font-size: .9rem; font-weight: 500; padding-bottom: 10px; }
+.cv-pname small { color: var(--muted); font-weight: 400; }
+.cv-other { margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 12px; }
+.cv-other summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: .92rem; }
+.cv-other h4 { margin: 18px 0 8px; font-size: .9rem; color: var(--muted); }
+.cv-other .cv-prow + .cv-prow { margin-top: 8px; }
+.cv-line .cv-res { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 10px 12px; margin-top: 2px; border-radius: 10px; background: var(--surface-2); font-size: .8rem; color: var(--muted); }
+.cv-line .cv-res b { color: var(--accent); font-size: .9rem; font-variant-numeric: tabular-nums; }
+.cv-line .cv-res em { flex-basis: 100%; color: #d9534f; font-style: normal; font-weight: 600; }
+.cv-line { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cv-line .lx-ref { grid-column: span 2; }
+@media (max-width: 760px) { .cv-prow { grid-template-columns: 1fr 1fr; } .cv-prow > :first-child { grid-column: 1 / -1; padding: 0; } .cv-line { grid-template-columns: 1fr 1fr; } }

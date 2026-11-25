@@ -1,0 +1,292 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, type Lang } from '../i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = t(lang);
+const ar = lang === 'ar';
+const S = ar ? {
+  title: 'تسعير الأعمال المدنية', lead: 'خنادق الكابلات وغرف التفتيش والقواعد: دخّل سعر الخرسانة والمقاسات، وخد الكميات والتكلفة فورًا.',
+  conc: 'أسعار الخرسانة (للمتر المكعب)', concHint: 'دخّل أسعارك. التوريد = المادة، والتركيب = المصنعية. تقدر تضيف نوع خرسانة جديد (مثلاً C30).', addConc: '+ نوع خرسانة',
+  name: 'النوع', mat: 'توريد', inst: 'تركيب', other: 'أسعار وإعدادات تانية (حفر، ردم، رمل، مواسير، حماية، أغطية)',
+  earth: 'أعمال الحفر والردم', consts: 'مسافات', ws: 'مسافة شغل حوالين الغرف والقواعد (م)', clr: 'مسافة جانبية للكابلات المدفونة (م)', spc: 'المسافة بين الكابلات (م)',
+  ducts: 'المواسير (للمتر)', prot: 'الحماية فوق الكابلات (للمتر)', covers: 'أغطية غرف التفتيش (للعدد)',
+  trenches: 'الخنادق', trenchHint: 'العرض: اكتبه، أو سيبه فاضي ويتحسب من عدد الكابلات + المواسير × المسافة + المسافة الجانبية.',
+  manholes: 'غرف التفتيش', manholeHint: 'المقاسات الداخلية. الحفر = المقاس الخارجي + مسافة الشغل، والردم = الحفر − حجم الغرفة.',
+  foundations: 'القواعد', foundationHint: 'مولد، ترانس/كشك، عمود إنارة، لوحة... الحفر = المقاس + مسافة الشغل.',
+  desc: 'الوصف', cables: 'كابلات جنب بعض', spacing: 'المسافة (م)', width: 'العرض (م) فاضي=تلقائي', depth: 'العمق (م)', sand: 'سُمك الرمل (م)', concType: 'نوع الخرسانة', concT: 'سُمك الخرسانة (م)',
+  nDucts: 'عدد المواسير', ductType: 'نوع الماسورة', tape: 'صفوف شريط التحذير', protType: 'الحماية', disposal: 'نقل ناتج الحفر', length: 'الطول (م)', none: '—', yes: 'نعم', no: 'لا',
+  l: 'الطول الداخلي (م)', w: 'العرض الداخلي (م)', d: 'العمق الداخلي (م)', wall: 'سُمك الحوائط (م)', base: 'سُمك القاعدة (م)', top: 'سُمك السقف (م)', blind: 'سُمك النظافة (م)', cover: 'الغطا', qty: 'العدد',
+  shape: 'الشكل', rect: 'مستطيل', circ: 'دايري', lf: 'الطول أو القطر (م)', wf: 'العرض (م)', depthG: 'العمق في الأرض (م)', height: 'الارتفاع فوق الأرض (م)', extras: 'مسامير وإضافات (ج/قاعدة)',
+  add: '+ إضافة', clear: 'مسح', remove: 'حذف', perM: 'للمتر', each: 'للوحدة', total: 'الإجمالي',
+  q: { exc: 'حفر', sand: 'رمل', conc: 'خرسانة', bkf: 'ردم', blind: 'نظافة' },
+  warn: { width: 'العرض؟', depth: 'العمق؟', concPrice: 'سعر الخرسانة ناقص', ductType: 'اختار نوع الماسورة', ductNo: 'عدد المواسير؟', concT: 'سُمك الخرسانة؟', protPrice: 'سعر الحماية ناقص', coverPrice: 'سعر الغطا ناقص', concType: 'اختار نوع الخرسانة' },
+  result: 'النتيجة', excl: 'جنيه مصري — بدون ضريبة', matT: 'إجمالي التوريد', instT: 'إجمالي التركيب', vat: 'شامل الضريبة 14%',
+  offerBtn: 'اعرض جدول الكميات ←', print: 'طباعة / حفظ PDF', excel: 'تحميل Excel', reset: 'رجّع الأسعار الافتراضية',
+  disclaimer: 'الكميات محسوبة هندسيًا من المقاسات، والأسعار حسب اللي إنت داخلها. راجع الرسومات قبل التعاقد.',
+} : {
+  title: 'Civil Works Pricing', lead: 'Cable trenches, manholes and foundations: enter your concrete prices and dimensions to get quantities and cost instantly.',
+  conc: 'Concrete prices (per m³)', concHint: 'Enter your prices: supply = material, install = labour. You can add another concrete type (e.g. C30).', addConc: '+ Concrete type',
+  name: 'Type', mat: 'Supply', inst: 'Install', other: 'Other prices & settings (excavation, backfill, sand, ducts, protection, covers)',
+  earth: 'Earthworks', consts: 'Clearances', ws: 'Working space around manholes & foundations (m)', clr: 'Side clearance, direct-buried cables (m)', spc: 'Spacing between cables c/c (m)',
+  ducts: 'Ducts (per m)', prot: 'Protection over cables (per m)', covers: 'Manhole covers (per No.)',
+  trenches: 'Trenches', trenchHint: 'Width: type it, or leave blank to calculate from (cables + ducts) × spacing + side clearance.',
+  manholes: 'Manholes', manholeHint: 'Internal dimensions. Excavation = outer size + working space; backfill = excavation − chamber volume.',
+  foundations: 'Foundations', foundationHint: 'Generator, transformer / kiosk, lighting pole, panel… Excavation = size + working space.',
+  desc: 'Description', cables: 'Cables side by side', spacing: 'Spacing (m)', width: 'Width (m) blank=auto', depth: 'Depth (m)', sand: 'Sand thickness (m)', concType: 'Concrete type', concT: 'Concrete thickness (m)',
+  nDucts: 'No. of ducts', ductType: 'Duct type', tape: 'Warning tape rows', protType: 'Protection', disposal: 'Dispose surplus soil', length: 'Length (m)', none: '—', yes: 'Yes', no: 'No',
+  l: 'Internal length (m)', w: 'Internal width (m)', d: 'Internal depth (m)', wall: 'Wall thick. (m)', base: 'Base thick. (m)', top: 'Top slab thick. (m)', blind: 'Blinding thick. (m)', cover: 'Cover', qty: 'Qty',
+  shape: 'Shape', rect: 'Rectangular', circ: 'Circular', lf: 'Length or Ø (m)', wf: 'Width (m)', depthG: 'Depth in ground (m)', height: 'Height above ground (m)', extras: 'Anchor bolts & extras (EGP/No.)',
+  add: '+ Add', clear: 'Clear', remove: 'Remove', perM: 'per m', each: 'each', total: 'Total',
+  q: { exc: 'Excavation', sand: 'Sand', conc: 'Concrete', bkf: 'Backfill', blind: 'Blinding' },
+  warn: { width: 'width?', depth: 'depth?', concPrice: 'concrete price missing', ductType: 'choose duct type', ductNo: 'No. of ducts?', concT: 'concrete thickness?', protPrice: 'protection price missing', coverPrice: 'cover price missing', concType: 'choose concrete type' },
+  result: 'Result', excl: 'EGP — excl. VAT', matT: 'Total supply', instT: 'Total installation', vat: 'Incl. 14% VAT',
+  offerBtn: 'Show bill of quantities →', print: 'Print / save PDF', excel: 'Download Excel', reset: 'Reset default prices',
+  disclaimer: 'Quantities are calculated geometrically from the dimensions; prices are the ones you enter. Check against drawings before contracting.',
+};
+---
+<Base lang={lang} title={L.nav.civil} description={S.lead}>
+  <div class="container pricing" id="civ" data-s={JSON.stringify(S)} data-lang={lang}>
+    <header class="page-head no-print">
+      <span class="badge">🏗️ {L.nav.civil}</span>
+      <h1 style="margin-top:12px">{S.title}</h1>
+      <p>{S.lead}</p>
+    </header>
+
+    <div class="pr-layout no-print">
+      <div class="pr-form" id="cv-form">
+        <section class="pr-card cb-market">
+          <h2><span class="pr-num">1</span>{S.conc}</h2>
+          <div id="cv-conc" class="cv-prices"></div>
+          <div class="pr-actions"><button type="button" class="btn-ghost" id="cv-add-conc">{S.addConc}</button></div>
+          <p class="pr-hint">{S.concHint}</p>
+          <details class="cv-other">
+            <summary>{S.other}</summary>
+            <div id="cv-other"></div>
+            <button type="button" class="cb-reset" id="cv-reset" style="display:inline;margin:12px 0 0">↺ {S.reset}</button>
+          </details>
+        </section>
+
+        <section class="pr-card">
+          <h2><span class="pr-num">2</span>{S.trenches}</h2>
+          <div class="cb-lines" id="cv-trenches"></div>
+          <div class="pr-actions"><button type="button" class="btn-ghost" data-add="trenches">{S.add}</button></div>
+          <p class="pr-hint">{S.trenchHint}</p>
+        </section>
+        <section class="pr-card">
+          <h2><span class="pr-num">3</span>{S.manholes}</h2>
+          <div class="cb-lines" id="cv-manholes"></div>
+          <div class="pr-actions"><button type="button" class="btn-ghost" data-add="manholes">{S.add}</button></div>
+          <p class="pr-hint">{S.manholeHint}</p>
+        </section>
+        <section class="pr-card">
+          <h2><span class="pr-num">4</span>{S.foundations}</h2>
+          <div class="cb-lines" id="cv-foundations"></div>
+          <div class="pr-actions"><button type="button" class="btn-ghost" data-add="foundations">{S.add}</button></div>
+          <p class="pr-hint">{S.foundationHint}</p>
+        </section>
+      </div>
+
+      <aside class="pr-result" aria-live="polite">
+        <div class="pr-card pr-sticky">
+          <h2><span class="pr-num">∑</span>{S.result}</h2>
+          <p class="pr-label">{S.total}</p>
+          <p class="pr-price"><span id="v-total">—</span> <small>{S.excl}</small></p>
+          <dl class="pr-dl">
+            <div><dt>{S.trenches}</dt><dd id="v-tr">—</dd></div>
+            <div><dt>{S.manholes}</dt><dd id="v-mh">—</dd></div>
+            <div><dt>{S.foundations}</dt><dd id="v-fd">—</dd></div>
+            <div><dt>{S.matT}</dt><dd id="v-mat">—</dd></div>
+            <div><dt>{S.instT}</dt><dd id="v-inst">—</dd></div>
+            <div><dt>{S.vat}</dt><dd id="v-vat">—</dd></div>
+          </dl>
+          <button type="button" class="btn pr-offer-btn" id="cv-offer-btn">{S.offerBtn}</button>
+          <p class="pr-hint">{S.disclaimer}</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="pr-offer-wrap" id="cv-offer-wrap" hidden>
+      <div class="no-print offer-actions"><button type="button" class="btn" id="cv-print">🖨 {S.print}</button><button type="button" class="btn btn-outline" id="cv-xlsx">⬇ {S.excel}</button></div>
+      <article class="offer" id="cv-offer" dir="ltr" lang="en"></article>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { DEFAULT_PRICES, EXAMPLES, trench, manhole, foundation, type CivilPrices, type PriceItem, type Trench, type Manhole, type Foundation } from '../lib/civil';
+  import { downloadXlsx } from '../lib/excel';
+
+  const root = document.getElementById('civ')!;
+  const S = JSON.parse(root.dataset.s!);
+  const $ = (id: string) => document.getElementById(id)!;
+  const fmt = (x: number, d = 0) => (isFinite(x) ? x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—');
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const STORE = 'wt-civil-v1';
+  const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
+
+  type State = { P: CivilPrices; trenches: Trench[]; manholes: Manhole[]; foundations: Foundation[] };
+  let st: State;
+  try { st = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch { st = null as any; }
+  if (!st?.P?.conc) st = { P: clone(DEFAULT_PRICES), ...clone(EXAMPLES) };
+  let offerOpen = false;
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch {} };
+
+  // ---------- price tables ----------
+  const priceRow = (path: string, p: PriceItem, editableName = false) => `
+    <div class="cv-prow" data-path="${path}">
+      ${editableName ? `<input data-k="name" value="${esc(p.name)}" aria-label="${S.name}" />` : `<span class="cv-pname">${esc(p.name)} <small>/${esc(p.unit)}</small></span>`}
+      <label>${S.mat}<input data-k="mat" type="number" min="0" step="any" value="${p.mat || ''}" placeholder="0" /></label>
+      <label>${S.inst}<input data-k="inst" type="number" min="0" step="any" value="${p.inst || ''}" placeholder="0" /></label>
+    </div>`;
+  function renderPrices() {
+    const P = st.P;
+    $('cv-conc').innerHTML = P.conc.map((c, i) => priceRow(`conc.${i}`, c, i > 2)).join('');
+    const group = (title: string, list: string) => `<h4>${title}</h4>${(P as any)[list].map((x: PriceItem, i: number) => priceRow(`${list}.${i}`, x)).join('')}`;
+    $('cv-other').innerHTML = `
+      <h4>${S.earth}</h4>${['exc', 'bkf', 'sand', 'disp', 'tape'].map((k) => priceRow(k, (P as any)[k])).join('')}
+      <h4>${S.consts}</h4><div class="pr-grid">
+        <label>${S.ws}<input data-const="ws" type="number" min="0" step="any" value="${P.ws}" /></label>
+        <label>${S.clr}<input data-const="clr" type="number" min="0" step="any" value="${P.clr}" /></label>
+        <label>${S.spc}<input data-const="spc" type="number" min="0" step="any" value="${P.spc}" /></label></div>
+      ${group(S.ducts, 'duct')}${group(S.prot, 'prot')}${group(S.covers, 'cov')}`;
+  }
+  function onPriceInput(e: Event) {
+    const el = e.target as HTMLInputElement;
+    if (el.dataset.const) { (st.P as any)[el.dataset.const] = +el.value || 0; return update(); }
+    const row = el.closest('.cv-prow') as HTMLElement | null;
+    if (!row || !el.dataset.k) return;
+    const [list, i] = row.dataset.path!.split('.');
+    const item: PriceItem = i == null ? (st.P as any)[list] : (st.P as any)[list][+i];
+    if (el.dataset.k === 'name') {
+      const old = item.name; item.name = el.value;
+      for (const sec of [st.trenches, st.manholes, st.foundations] as any[]) sec.forEach((r: any) => { if (r.conc === old) r.conc = el.value; });
+      renderRows();
+    } else (item as any)[el.dataset.k] = +el.value || 0;
+    update();
+  }
+  $('cv-conc').addEventListener('input', onPriceInput);
+  $('cv-other').addEventListener('input', onPriceInput);
+  $('cv-add-conc').addEventListener('click', () => { st.P.conc.push({ name: `C${25 + 5 * (st.P.conc.length - 2)}`, unit: 'm³', mat: 0, inst: 0 }); renderPrices(); renderRows(); update(); });
+  $('cv-reset').addEventListener('click', () => { st.P = clone(DEFAULT_PRICES); renderPrices(); renderRows(); update(); });
+
+  // ---------- rows ----------
+  const opt = (list: { name: string }[], sel: string, blank = true) => (blank ? `<option value="">${S.none}</option>` : '') + list.map((x) => `<option${x.name === sel ? ' selected' : ''}>${esc(x.name)}</option>`).join('');
+  const yn = (v: boolean) => `<option value="no"${!v ? ' selected' : ''}>${S.no}</option><option value="yes"${v ? ' selected' : ''}>${S.yes}</option>`;
+  const num = (k: string, label: string, v: number, ph = '') => `<label>${label}<input data-f="${k}" type="number" min="0" step="any" value="${v || ''}" placeholder="${ph}" /></label>`;
+  const fields: Record<string, (r: any) => string> = {
+    trenches: (r: Trench) => `
+      <label class="lx-ref">${S.desc}<input data-f="desc" value="${esc(r.desc)}" /></label>${num('length', S.length, r.length)}${num('depth', S.depth, r.depth)}
+      ${num('width', S.width, r.width, 'auto')}${num('cables', S.cables, r.cables)}${num('spacing', S.spacing, r.spacing, String(st.P.spc))}${num('sand', S.sand, r.sand)}
+      <label>${S.concType}<select data-f="conc">${opt(st.P.conc, r.conc)}</select></label>${num('concT', S.concT, r.concT)}
+      ${num('ducts', S.nDucts, r.ducts)}<label>${S.ductType}<select data-f="duct">${opt(st.P.duct, r.duct)}</select></label>${num('tape', S.tape, r.tape)}
+      <label>${S.protType}<select data-f="prot">${opt(st.P.prot, r.prot)}</select></label><label>${S.disposal}<select data-f="disposal">${yn(r.disposal)}</select></label>`,
+    manholes: (r: Manhole) => `
+      <label class="lx-ref">${S.desc}<input data-f="desc" value="${esc(r.desc)}" /></label>${num('qty', S.qty, r.qty)}${num('l', S.l, r.l)}
+      ${num('w', S.w, r.w)}${num('d', S.d, r.d)}<label>${S.concType}<select data-f="conc">${opt(st.P.conc, r.conc)}</select></label>
+      ${num('wall', S.wall, r.wall)}${num('base', S.base, r.base)}${num('top', S.top, r.top)}${num('blind', S.blind, r.blind)}
+      <label>${S.cover}<select data-f="cover">${opt(st.P.cov, r.cover)}</select></label><label>${S.disposal}<select data-f="disposal">${yn(r.disposal)}</select></label>`,
+    foundations: (r: Foundation) => `
+      <label class="lx-ref">${S.desc}<input data-f="desc" value="${esc(r.desc)}" /></label>${num('qty', S.qty, r.qty)}
+      <label>${S.shape}<select data-f="shape"><option value="Rectangular"${r.shape !== 'Circular' ? ' selected' : ''}>${S.rect}</option><option value="Circular"${r.shape === 'Circular' ? ' selected' : ''}>${S.circ}</option></select></label>
+      ${num('l', S.lf, r.l)}${num('w', S.wf, r.w)}<label>${S.concType}<select data-f="conc">${opt(st.P.conc, r.conc)}</select></label>
+      ${num('depth', S.depthG, r.depth)}${num('height', S.height, r.height)}${num('blind', S.blind, r.blind)}${num('extras', S.extras, r.extras)}
+      <label>${S.disposal}<select data-f="disposal">${yn(r.disposal)}</select></label>`,
+  };
+  const blank: Record<string, () => any> = {
+    trenches: () => ({ desc: '', cables: 0, spacing: 0, width: 0.6, depth: 0.8, sand: 0.3, conc: '', concT: 0, ducts: 0, duct: '', tape: 1, prot: 'Bricks (1 row)', disposal: false, length: 100 }),
+    manholes: () => ({ desc: '', l: 1, w: 1, d: 1.2, conc: st.P.conc[2]?.name ?? '', wall: 0.2, base: 0.2, top: 0.2, blind: 0.1, cover: '', disposal: false, qty: 1 }),
+    foundations: () => ({ desc: '', shape: 'Rectangular', l: 1, w: 1, conc: st.P.conc[2]?.name ?? '', depth: 0.6, height: 0.15, blind: 0.1, extras: 0, disposal: false, qty: 1 }),
+  };
+  function renderRows() {
+    for (const sec of ['trenches', 'manholes', 'foundations'] as const) {
+      $(`cv-${sec}`).innerHTML = (st[sec] as any[]).map((r, i) => `
+        <div class="cb-line lx-line cv-line" data-sec="${sec}" data-i="${i}"><span class="cb-idx">${i + 1}</span>${fields[sec](r)}
+          <button type="button" class="pr-x" aria-label="${S.remove}">×</button><div class="cv-res" data-res></div></div>`).join('');
+    }
+  }
+  document.getElementById('cv-form')!.addEventListener('input', (e) => {
+    const el = e.target as HTMLInputElement;
+    const line = el.closest('.cv-line') as HTMLElement | null;
+    if (!line || !el.dataset.f) return;
+    const row = (st as any)[line.dataset.sec!][+line.dataset.i!];
+    const f = el.dataset.f;
+    row[f] = el.type === 'number' ? +el.value || 0 : f === 'disposal' ? el.value === 'yes' : el.value;
+    update();
+  });
+  document.getElementById('cv-form')!.addEventListener('change', (e) => (e.target as HTMLElement).dispatchEvent(new Event('input', { bubbles: true })));
+  document.getElementById('cv-form')!.addEventListener('click', (e) => {
+    const el = e.target as HTMLElement;
+    if (el.classList.contains('pr-x')) {
+      const line = el.closest('.cv-line') as HTMLElement;
+      (st as any)[line.dataset.sec!].splice(+line.dataset.i!, 1); renderRows(); update();
+    } else if (el.dataset.add) { (st as any)[el.dataset.add].push(blank[el.dataset.add]()); renderRows(); update(); }
+  });
+
+  function compute() {
+    const tr = st.trenches.map((r) => ({ r, x: trench(r, st.P) }));
+    const mh = st.manholes.map((r) => ({ r, x: manhole(r, st.P) }));
+    const fd = st.foundations.map((r) => ({ r, x: foundation(r, st.P) }));
+    const sum = (a: { x: { total: number } }[]) => a.reduce((s, y) => s + y.x.total, 0);
+    const all = [...tr, ...mh, ...fd];
+    return { tr, mh, fd, tTr: sum(tr), tMh: sum(mh), tFd: sum(fd), mat: all.reduce((s, y) => s + y.x.totalMat, 0), inst: all.reduce((s, y) => s + y.x.totalInst, 0) };
+  }
+
+  function update() {
+    save();
+    const c = compute();
+    const warnTxt = (w: string[]) => w.map((k) => `⚠ ${S.warn[k] ?? k}`).join('  ');
+    const lines = document.querySelectorAll<HTMLElement>('.cv-line');
+    lines.forEach((line) => {
+      const sec = line.dataset.sec!, i = +line.dataset.i!;
+      const { x } = (c as any)[sec === 'trenches' ? 'tr' : sec === 'manholes' ? 'mh' : 'fd'][i];
+      const unit = sec === 'trenches' ? x.perM : x.each;
+      const q = sec === 'trenches'
+        ? `${S.width.split(' ')[0]} ${fmt(x.width, 2)} m · ${S.q.exc} ${fmt(x.exc, 3)} · ${S.q.sand} ${fmt(x.sand, 3)} · ${S.q.conc} ${fmt(x.conc, 3)} · ${S.q.bkf} ${fmt(x.bkf, 3)} m³/m`
+        : `${S.q.exc} ${fmt(x.exc, 2)} · ${S.q.conc} ${fmt(x.conc, 2)} · ${S.q.blind} ${fmt(x.blind, 2)} · ${S.q.bkf} ${fmt(x.bkf, 2)} m³`;
+      line.querySelector('[data-res]')!.innerHTML = `<span>${q}</span><b>${fmt(unit, 2)} ${sec === 'trenches' ? S.perM : S.each} · ${S.total} ${fmt(x.total)}</b>${x.warn.length ? `<em>${warnTxt(x.warn)}</em>` : ''}`;
+    });
+    $('v-total').textContent = fmt(c.tTr + c.tMh + c.tFd);
+    $('v-tr').textContent = fmt(c.tTr); $('v-mh').textContent = fmt(c.tMh); $('v-fd').textContent = fmt(c.tFd);
+    $('v-mat').textContent = fmt(c.mat); $('v-inst').textContent = fmt(c.inst); $('v-vat').textContent = fmt((c.tTr + c.tMh + c.tFd) * 1.14);
+    if (offerOpen) renderOffer(c);
+  }
+
+  function boqRows(c: ReturnType<typeof compute>) {
+    const rows: (string | number)[][] = [];
+    let k = 0;
+    const sec = (title: string) => rows.push(['', title]);
+    if (c.tr.length) { sec('TRENCHES'); c.tr.forEach(({ r, x }) => rows.push([++k, r.desc || 'Trench', 'm', r.length, x.mat, x.inst, x.perM, x.total])); }
+    if (c.mh.length) { sec('MANHOLES'); c.mh.forEach(({ r, x }) => rows.push([++k, r.desc || 'Manhole', 'No.', r.qty, x.mat, x.inst, x.each, x.total])); }
+    if (c.fd.length) { sec('FOUNDATIONS'); c.fd.forEach(({ r, x }) => rows.push([++k, r.desc || 'Foundation', 'No.', r.qty, x.mat, x.inst, x.each, x.total])); }
+    return rows;
+  }
+  function renderOffer(c: ReturnType<typeof compute>) {
+    const conc = st.P.conc.filter((x) => x.mat || x.inst).map((x) => `${esc(x.name)}: ${fmt(x.mat + x.inst)} EGP/m³`).join(' • ');
+    const body = boqRows(c).map((r) => r[0] === '' ? `<tr class="o-head"><td colspan="8">${esc(r[1])}</td></tr>`
+      : `<tr><td>${r[0]}</td><td class="o-desc">${esc(r[1])}</td><td>${r[2]}</td><td class="o-num">${fmt(+r[3], 2)}</td><td class="o-num">${fmt(+r[4], 2)}</td><td class="o-num">${fmt(+r[5], 2)}</td><td class="o-num">${fmt(+r[6], 2)}</td><td class="o-num">${fmt(+r[7])}</td></tr>`).join('');
+    const tot = c.tTr + c.tMh + c.tFd;
+    $('cv-offer').innerHTML = `
+      <header class="o-top"><img src="/logo-96.webp" alt="" width="64" height="64" /><div><h2>CIVIL WORKS – BILL OF QUANTITIES</h2><p>Trenches, manholes & foundations • ${new Date().toISOString().slice(0, 10)}</p></div></header>
+      <p class="o-scope">Concrete rates used: ${conc || '—'}</p>
+      <div class="o-scroll"><table class="o-bom"><thead><tr><th>Item</th><th>Description</th><th>Unit</th><th>Qty</th><th>Supply / unit</th><th>Install / unit</th><th>Rate / unit</th><th>Total EGP</th></tr></thead>
+      <tbody>${body}</tbody><tfoot><tr><td colspan="7">Total (EGP, excl. VAT)</td><td class="o-num">${fmt(tot)}</td></tr><tr><td colspan="7">Total incl. 14% VAT</td><td class="o-num">${fmt(tot * 1.14)}</td></tr></tfoot></table></div>
+      <h3>NOTES</h3><ol class="o-notes"><li>Quantities are calculated from the stated dimensions; excavation includes a working space of ${st.P.ws} m each side for manholes and foundations.</li><li>Backfill uses excavated soil; surplus disposal is included only where stated.</li><li>Rates exclude VAT and are based on the unit prices entered.</li></ol>`;
+  }
+  $('cv-offer-btn').addEventListener('click', () => { offerOpen = true; ($('cv-offer-wrap') as HTMLElement).hidden = false; update(); $('cv-offer-wrap').scrollIntoView({ behavior: 'smooth' }); });
+  $('cv-print').addEventListener('click', () => window.print());
+  $('cv-xlsx').addEventListener('click', () => {
+    const c = compute();
+    const prices: (string | number)[][] = [['Item', 'Unit', 'Supply', 'Install'], ...[...st.P.conc, st.P.exc, st.P.bkf, st.P.sand, st.P.disp, st.P.tape, ...st.P.duct, ...st.P.prot, ...st.P.cov].map((p) => [p.name, p.unit, p.mat, p.inst])];
+    const tr: (string | number)[][] = [['Description', 'Length m', 'Width used m', 'Depth m', 'Excavation m³/m', 'Sand m³/m', 'Concrete m³/m', 'Backfill m³/m', 'Supply/m', 'Install/m', 'Total/m', 'Total EGP'],
+      ...c.tr.map(({ r, x }) => [r.desc, r.length, x.width, r.depth, x.exc, x.sand, x.conc, x.bkf, x.mat, x.inst, x.perM, x.total])];
+    const mh: (string | number)[][] = [['Description', 'Qty', 'L', 'W', 'D', 'Excavation m³', 'Concrete m³', 'Blinding m³', 'Backfill m³', 'Supply/No.', 'Install/No.', 'Total/No.', 'Total EGP'],
+      ...c.mh.map(({ r, x }) => [r.desc, r.qty, r.l, r.w, r.d, x.exc, x.conc, x.blind, x.bkf, x.mat, x.inst, x.each, x.total])];
+    const fd: (string | number)[][] = [['Description', 'Qty', 'Shape', 'L/Ø', 'W', 'Excavation m³', 'Concrete m³', 'Blinding m³', 'Backfill m³', 'Supply/No.', 'Install/No.', 'Total/No.', 'Total EGP'],
+      ...c.fd.map(({ r, x }) => [r.desc, r.qty, r.shape, r.l, r.w, x.exc, x.conc, x.blind, x.bkf, x.mat, x.inst, x.each, x.total])];
+    downloadXlsx('civil works - BOQ.xlsx', [{ name: 'BOQ', rows: [['Item', 'Description', 'Unit', 'Qty', 'Supply/unit', 'Install/unit', 'Rate/unit', 'Total EGP'], ...boqRows(c)] }, { name: 'Trenches', rows: tr }, { name: 'Manholes', rows: mh }, { name: 'Foundations', rows: fd }, { name: 'Unit prices', rows: prices }]);
+  });
+
+  renderPrices(); renderRows(); update();
+</script>
