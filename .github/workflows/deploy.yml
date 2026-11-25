@@ -30,6 +30,25 @@ jobs:
         run: python3 tools/fetch_market.py
         continue-on-error: true
       - run: npm run build
+      # Keep the hashed JS/CSS files of earlier deploys, so pages cached by browsers
+      # (e.g. the LinkedIn / Facebook in-app browsers) still find the files they reference.
+      - name: Restore assets of previous deploys
+        uses: actions/cache/restore@v4
+        with:
+          path: .old-assets
+          key: astro-assets-${{ github.run_id }}
+          restore-keys: astro-assets-
+      - name: Merge previous assets into this deploy
+        run: |
+          mkdir -p .old-assets dist/_astro
+          cp -n .old-assets/* dist/_astro/ 2>/dev/null || true
+          cp dist/_astro/* .old-assets/
+          ls .old-assets | wc -l
+      - name: Save assets for future deploys
+        uses: actions/cache/save@v4
+        with:
+          path: .old-assets
+          key: astro-assets-${{ github.run_id }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
